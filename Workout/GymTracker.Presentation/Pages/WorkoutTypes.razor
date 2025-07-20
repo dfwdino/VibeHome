@@ -1,0 +1,115 @@
+@page "/workout-types"
+@using GymTracker.Domain.Models
+@using GymTracker.Application.Services
+@inject WorkoutTypeService WorkoutTypeService
+
+<h3>Workout Types</h3>
+
+<div class="row mb-3">
+    <div class="col">
+        <button class="btn btn-primary" @onclick="ShowAddTypeForm">Add New Workout Type</button>
+    </div>
+</div>
+
+@if (ShowAddForm || ShowEditForm)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">@(ShowEditForm ? "Edit Workout Type" : "Add New Workout Type")</h5>
+            <EditForm Model="@CurrentType" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <InputText id="name" class="form-control" @bind-Value="@CurrentType.Name" />
+                </div>
+                <button type="submit" class="btn btn-primary">@(ShowEditForm ? "Update" : "Save")</button>
+                <button type="button" class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var type in Types)
+        {
+            <tr>
+                <td>@type.Name</td>
+                <td>
+                    <button class="btn btn-sm btn-primary me-2" @onclick="() => StartEditType(type)">Edit</button>
+                    <button class="btn btn-sm btn-danger" @onclick="async () => await DeleteType(type.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<WorkoutType> Types { get; set; } = new();
+    private WorkoutType NewType { get; set; } = new();
+    private WorkoutType EditType { get; set; } = new();
+    private bool ShowAddForm { get; set; }
+    private bool ShowEditForm { get; set; }
+    private WorkoutType CurrentType => ShowEditForm ? EditType : NewType;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        Types = (await WorkoutTypeService.GetAllAsync()).ToList();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (ShowEditForm)
+        {
+            await WorkoutTypeService.UpdateAsync(EditType);
+        }
+        else
+        {
+            await WorkoutTypeService.AddAsync(NewType);
+        }
+        NewType = new WorkoutType();
+        EditType = new WorkoutType();
+        ShowAddForm = false;
+        ShowEditForm = false;
+        await LoadData();
+    }
+
+    private void StartEditType(WorkoutType type)
+    {
+        EditType = type;
+        ShowEditForm = true;
+        ShowAddForm = false;
+    }
+
+    private void CancelForm()
+    {
+        ShowAddForm = false;
+        ShowEditForm = false;
+        NewType = new WorkoutType();
+        EditType = new WorkoutType();
+    }
+
+    private async Task DeleteType(int id)
+    {
+        await WorkoutTypeService.DeleteAsync(id);
+        await LoadData();
+    }
+
+    private void ShowAddTypeForm()
+    {
+        ShowAddForm = true;
+        ShowEditForm = false;
+    }
+} 

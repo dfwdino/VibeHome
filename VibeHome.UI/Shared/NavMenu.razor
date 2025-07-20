@@ -1,0 +1,100 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Vibe Home</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <strong>KidsChore</strong>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="KidsChore/Chores">
+                <span class="oi oi-task" aria-hidden="true"></span> Chores
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="KidsChore/Kids">
+                <span class="oi oi-people" aria-hidden="true"></span> Kids
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="KidsChore/Users">
+                <span class="oi oi-person" aria-hidden="true"></span> Users
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="KidsChore/Locations">
+                <span class="oi oi-map-marker" aria-hidden="true"></span> Locations
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="KidsChore/Completions">
+                <span class="oi oi-check" aria-hidden="true"></span> Completions
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="KidsChore/Report">
+                <span class="oi oi-document" aria-hidden="true"></span> Report
+            </NavLink>
+        </div>
+        <div class="nav-item px-3 mt-3">
+            <strong>Workout</strong>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Workout/weight-training-sessions">
+                <span class="oi oi-bar-chart" aria-hidden="true"></span> Weight Training
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Workout/cardio-sessions">
+                <span class="oi oi-pulse" aria-hidden="true"></span> Cardio Sessions
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Workout/cardio-types">
+                <span class="oi oi-loop-circular" aria-hidden="true"></span> Cardio Types
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Workout/workout-types">
+                <span class="oi oi-list" aria-hidden="true"></span> Workout Types
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Workout/locations">
+                <span class="oi oi-map-marker" aria-hidden="true"></span> Locations
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Workout/analytics">
+                <span class="oi oi-graph" aria-hidden="true"></span> Analytics
+            </NavLink>
+        </div>
+        <div class="nav-item px-3 mt-3">
+            <NavLink class="nav-link" href="logout">
+                <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

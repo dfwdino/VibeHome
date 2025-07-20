@@ -1,0 +1,71 @@
+﻿@inherits LayoutComponentBase
+
+@using KidsChore.UI
+@using KidsChore.UI.Shared
+
+<div class="container-fluid p-0">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="">KidsChore</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="kids">Kids</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="locations">Locations</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="chores">Chore Items</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="completions">Completions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="report">Weekly Report</a>
+                    </li>
+                    @if (AuthState.CurrentUser?.Role == "Parent")
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="users">Users</a>
+                        </li>
+                    }
+                </ul>
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    @if (AuthState.CurrentUser is null)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="login">Login</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <span class="navbar-text text-white me-2">Hello, @AuthState.CurrentUser.Username (@AuthState.CurrentUser.Role)</span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" @onclick="Logout">Logout</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main class="container py-3">
+        @Body
+    </main>
+</div>
+
+<NotificationComponent />
+
+@code {
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    private void Logout()
+    {
+        AuthState.Logout();
+        NavigationManager.NavigateTo("/login");
+    }
+}

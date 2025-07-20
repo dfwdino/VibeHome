@@ -1,0 +1,42 @@
+﻿@using global::VibeHome.UI
+@page "/"
+@inject NavigationManager Navigation
+
+<PageTitle>VibeHome - Family Dashboard</PageTitle>
+
+@if (AuthState.CurrentUser == null)
+{
+    <div class="text-center my-5">
+        <h1>Welcome to VibeHome! 🏠</h1>
+        <p class="lead">Your family's central hub for chores, workouts, and more.</p>
+        <a href="/login" class="btn btn-primary btn-lg">Log In</a>
+    </div>
+}
+else
+{
+    <div class="text-center my-5">
+        <h1>Welcome back, @AuthState.CurrentUser.Username! 👋</h1>
+        <p class="lead">What would you like to do today?</p>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">🧹 KidsChore</h5>
+                        <p class="card-text">Manage chores, track completions, and handle payments.</p>
+                        <a href="/KidsChore/Chores" class="btn btn-primary">Go to Chores</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">💪 Workout</h5>
+                        <p class="card-text">Track your fitness progress and workout sessions.</p>
+                        <a href="/Workout/weight-training-sessions" class="btn btn-primary">Go to Workouts</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

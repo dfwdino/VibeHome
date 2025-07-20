@@ -1,0 +1,181 @@
+@page "/chores"
+@attribute [Authorize(Roles = "Parent")]
+@inject IChoreItemService ChoreItemService
+@inject NavigationManager NavigationManager
+@using KidsChore.UI.Shared
+
+<h3>Chore Items</h3>
+
+<button class="btn btn-primary mb-3" @onclick="ToggleForm">@(showForm ? (isEdit ? "Edit Chore" : "Add Chore") : "Add Chore")</button>
+<button class="btn btn-outline-secondary ms-2" @onclick="ToggleSearch">@(showSearch ? "Hide Search" : "Show Search")</button>
+
+@if (showSearch)
+{
+    <SearchFilterComponent 
+        TotalCount="@allChores.Count" 
+        FilteredCount="@filteredChores.Count" 
+        ShowDateFilter="false"
+        OnFiltersChanged="OnFiltersChanged" />
+}
+<div class="collapse @(showForm ? "show" : "")" id="choreForm">
+    <EditForm Model="choreModel" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label class="form-label">Chore Name</label>
+            <InputText class="form-control" @bind-Value="choreModel.ChoreName" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Price</label>
+            <InputNumber class="form-control" @bind-Value="choreModel.Price" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <InputText class="form-control" @bind-Value="choreModel.Description" />
+        </div>
+        <button type="submit" class="btn btn-success">@(choreModel.ChoreItemId == 0 ? "Add Chore" : "Update Chore")</button>
+        @if (choreModel.ChoreItemId != 0)
+        {
+            <button type="button" class="btn btn-secondary ms-2" @onclick="ClearForm">Cancel</button>
+        }
+    </EditForm>
+</div>
+<div class="d-none d-md-block">
+    <table class="table table-striped table-hover align-middle" style="text-align:center">
+        <thead>
+            <tr>
+                <th class="custom-table-header">Chore</th>
+                <th class="custom-table-header">Price</th>
+                <th class="custom-table-header">Description</th>
+                <th class="custom-table-header">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var chore in filteredChores)
+            {
+                <tr>
+                    <td>@chore.ChoreName.ToTitleCase()</td>
+                    <td>@FormatPrice(chore.Price)</td>
+                    <td>@chore.Description</td>
+                    <td>
+                        <button class="btn btn-sm btn-info me-1" @onclick="@(() => EditChore(chore))">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="async () => await DeleteChore(chore.ChoreItemId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="d-block d-md-none">
+    @foreach (var chore in filteredChores)
+    {
+        <div class="card mb-2 shadow-sm">
+            <div class="card-body p-2">
+                <div><strong>Chore:</strong> @chore.ChoreName.ToTitleCase()</div>
+                <div><strong>Price:</strong> @FormatPrice(chore.Price)</div>
+                @if (!string.IsNullOrWhiteSpace(chore.Description))
+                {
+                    <div><strong>Description:</strong> @chore.Description</div>
+                }
+                <div class="mt-2 d-flex gap-2">
+                    <button class="btn btn-info flex-fill" @onclick="@(() => EditChore(chore))">Edit</button>
+                    <button class="btn btn-danger flex-fill" @onclick="async () => await DeleteChore(chore.ChoreItemId)">Delete</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<ChoreItem> allChores = new();
+    private List<ChoreItem> filteredChores = new();
+    private ChoreItem choreModel = new();
+    private bool showForm = false;
+    private bool isEdit => choreModel.ChoreItemId != 0;
+    private bool showSearch = false;
+    private SearchFilterComponent.SearchFilterCriteria currentFilters = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadChores();
+    }
+
+    private async Task LoadChores()
+    {
+        allChores = (await ChoreItemService.GetAllAsync()).Where(c => !c.IsDeleted).ToList();
+        ApplyFilters();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (choreModel.ChoreItemId == 0)
+            await ChoreItemService.AddAsync(choreModel);
+        else
+            await ChoreItemService.UpdateAsync(choreModel);
+        await LoadChores();
+        ClearForm();
+    }
+
+    private void EditChore(ChoreItem chore)
+    {
+        choreModel = new ChoreItem
+        {
+            ChoreItemId = chore.ChoreItemId,
+            ChoreName = chore.ChoreName,
+            Price = chore.Price,
+            Description = chore.Description
+        };
+        showForm = true;
+    }
+
+    private async Task DeleteChore(int id)
+    {
+        await ChoreItemService.DeleteAsync(id);
+        await LoadChores();
+    }
+
+    private void ClearForm()
+    {
+        choreModel = new ChoreItem();
+        showForm = false;
+    }
+
+    private void ToggleForm()
+    {
+        showForm = !showForm;
+    }
+
+    private void ToggleSearch()
+    {
+        showSearch = !showSearch;
+    }
+
+    private string FormatPrice(decimal price)
+    {
+        if (price % 1 == 0)
+            return "$" + ((int)price).ToString();
+        else
+            return "$" + price.ToString("0.00");
+    }
+
+    private async Task OnFiltersChanged(SearchFilterComponent.SearchFilterCriteria filters)
+    {
+        currentFilters = filters;
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        var query = allChores.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(currentFilters.SearchTerm))
+        {
+            var searchTerm = currentFilters.SearchTerm.ToLower();
+            query = query.Where(c =>
+                (c.ChoreName ?? "").ToLower().Contains(searchTerm) ||
+                (c.Description ?? "").ToLower().Contains(searchTerm)
+            );
+        }
+        filteredChores = query.ToList();
+        StateHasChanged();
+    }
+} 

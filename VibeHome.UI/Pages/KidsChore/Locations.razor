@@ -1,0 +1,127 @@
+@using global::KidsChore.Application.Interfaces
+@using global::KidsChore.Domain.Entities
+@using VibeHome.UI.Shared
+@page "/KidsChore/locations"
+@attribute [Authorize(Roles = "Parent")]
+@inject ILocationService LocationService
+@inject NavigationManager NavigationManager
+
+<h3>Locations</h3>
+
+<button class="btn btn-primary mb-3" @onclick="ToggleForm">@(showForm ? (isEdit ? "Edit Location" : "Add Location") : "Add Location")</button>
+<div class="collapse @(showForm ? "show" : "")" id="locationForm">
+    <EditForm Model="locationModel" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label class="form-label">Location Name</label>
+            <InputText class="form-control" @bind-Value="locationModel.LocationName" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <InputText class="form-control" @bind-Value="locationModel.Description" />
+        </div>
+        <button type="submit" class="btn btn-success">@(locationModel.LocationId == 0 ? "Add Location" : "Update Location")</button>
+        @if (locationModel.LocationId != 0)
+        {
+            <button type="button" class="btn btn-secondary ms-2" @onclick="ClearForm">Cancel</button>
+        }
+    </EditForm>
+</div>
+<div class="d-none d-md-block" style="text-align:center">
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+            <tr>
+                <th class="custom-table-header">Location</th>
+                <th class="custom-table-header">Description</th>
+                <th class="custom-table-header">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var location in locations)
+            {
+                <tr>
+                    <td>@location.LocationName.ToTitleCase()</td>
+                    <td>@location.Description</td>
+                    <td>
+                        <button class="btn btn-sm btn-info me-1" @onclick="@(() => EditLocation(location))">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="async () => await DeleteLocation(location.LocationId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="d-block d-md-none">
+    @foreach (var location in locations)
+    {
+        <div class="card mb-2 shadow-sm">
+            <div class="card-body p-2">
+                <div><strong>Location:</strong> @location.LocationName.ToTitleCase()</div>
+                @if (!string.IsNullOrWhiteSpace(location.Description))
+                {
+                    <div><strong>Description:</strong> @location.Description</div>
+                }
+                <div class="mt-2 d-flex gap-2">
+                    <button class="btn btn-info flex-fill" @onclick="@(() => EditLocation(location))">Edit</button>
+                    <button class="btn btn-danger flex-fill" @onclick="async () => await DeleteLocation(location.LocationId)">Delete</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<Location> locations = new();
+    private Location locationModel = new();
+    private bool showForm = false;
+    private bool isEdit => locationModel.LocationId != 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLocations();
+    }
+
+    private async Task LoadLocations()
+    {
+        locations = (await LocationService.GetAllAsync()).Where(l => !l.IsDeleted).ToList();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (locationModel.LocationId == 0)
+            await LocationService.AddAsync(locationModel);
+        else
+            await LocationService.UpdateAsync(locationModel);
+        await LoadLocations();
+        ClearForm();
+    }
+
+    private void EditLocation(Location location)
+    {
+        locationModel = new Location
+        {
+            LocationId = location.LocationId,
+            LocationName = location.LocationName,
+            Description = location.Description
+        };
+        showForm = true;
+    }
+
+    private async Task DeleteLocation(int id)
+    {
+        await LocationService.DeleteAsync(id);
+        await LoadLocations();
+    }
+
+    private void ClearForm()
+    {
+        locationModel = new Location();
+        showForm = false;
+    }
+
+    private void ToggleForm()
+    {
+        showForm = !showForm;
+    }
+} 

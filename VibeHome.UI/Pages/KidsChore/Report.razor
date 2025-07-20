@@ -1,0 +1,140 @@
+@using global::KidsChore.Application.Interfaces
+@using global::KidsChore.Domain.Entities
+@page "/KidsChore/report"
+@inject IReportService ReportService
+@inject IWeeklyPaymentStatusService WeeklyPaymentStatusService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>Weekly Earnings Report - @DateTime.Now.ToString("MMMM dd, yyyy")</h3>
+
+@if (reports.Count == 0)
+{
+    <div class="alert alert-info">No report data available yet.</div>
+}
+else
+{
+    bool isFirst = true;
+    foreach (var weekGroup in reports.GroupBy(r => r.WeekStartDate).OrderByDescending(g => g.Key))
+    {
+        if (!isFirst)
+        {
+            <div style="height: 18px;"></div>
+            <hr class="my-1" />
+        }
+        isFirst = false;
+        var weekStart = weekGroup.Key;
+        var weekEnd = weekStart.AddDays(6);
+        <div class="bg-info text-dark text-center mb-2" style="padding-top: 12px; padding-bottom: 12px; border-radius: 4px;">
+            <strong>Week of @weekStart.ToString("MMMM dd, yyyy") to @weekEnd.ToString("MMMM dd, yyyy")</strong>
+        </div>
+        <table class="table table-bordered table-sm text-center">
+            <thead>
+                <tr>
+                    <th class="text-center">Kid</th>
+                    <th class="text-center">Chore</th>
+                    <th class="text-center">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var kidGroup in weekGroup.GroupBy(r => r.KidName).OrderBy(g => g.Key))
+                {
+                    var completions = kidGroup.SelectMany(r => r.Completions).ToList();
+                    foreach (var completion in completions)
+                    {
+                        <tr>
+                            <td class="text-center">@kidGroup.Key</td>
+                            <td class="text-center">
+                                @completion.ChoreItem?.ChoreName @if (!string.IsNullOrWhiteSpace(completion.Notes)) { <span> - @completion.Notes</span> }<span> - @completion.CompletionDateTime.ToString("MM/dd/yyyy")</span>
+                            </td>
+                            <td class="text-center">@((completion.Price != 0 ? completion.Price : (completion.ChoreItem?.Price ?? 0)).ToString("C"))</td>
+                        </tr>
+                    }
+                    var values = completions.Select(c => c.Price != 0 ? c.Price : (c.ChoreItem?.Price ?? 0)).ToList();
+                    var positiveTotal = values.Where(v => v > 0).Sum();
+                    var negativeTotal = values.Where(v => v < 0).Sum();
+                    var spending = (positiveTotal * 0.5m) + negativeTotal;
+                    var savings = positiveTotal * 0.25m;
+                    var retirement = positiveTotal * 0.25m;
+                    
+                    // Get payment status for this kid and week
+                    var isPaid = paymentStatuses.GetValueOrDefault((kidGroup.First().KidId, weekStart), false);
+                    
+                    <tr class="table-secondary">
+                        <td colspan="3" class="text-center">
+                            <strong>@kidGroup.Key's Amount:</strong>
+                            <span class="ms-3"><strong>Spending:</strong> @spending.ToString("C")</span>
+                            <span class="ms-3"><strong>Savings:</strong> @savings.ToString("C")</span>
+                            <span class="ms-3"><strong>Retirement:</strong> @retirement.ToString("C")</span>
+                            <span class="ms-3">
+                                <strong>Status:</strong> 
+                                @if (isPaid)
+                                {
+                                    <span class="text-success">✅ Paid</span>
+                                    @if (isParent)
+                                    {
+                                        <button class="btn btn-sm btn-warning ms-2" @onclick="() => MarkAsUnpaid(kidGroup.First().KidId, weekStart)">Mark Unpaid</button>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-danger">❌ Unpaid</span>
+                                    @if (isParent)
+                                    {
+                                        <button class="btn btn-sm btn-success ms-2" @onclick="() => MarkAsPaid(kidGroup.First().KidId, weekStart)">Mark Paid</button>
+                                    }
+                                }
+                            </span>
+                        </td>
+                    </tr>
+                    <tr><td colspan="3" style="height: 16px;"></td></tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private List<WeeklyEarningsReport> reports = new();
+    private Dictionary<(int KidId, DateTime WeekStart), bool> paymentStatuses = new();
+    private bool isParent = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isParent = authState.User.IsInRole("Parent");
+        reports = (await ReportService.GetWeeklyEarningsAsync()).ToList();
+        await LoadPaymentStatuses();
+    }
+
+    private async Task MarkAsPaid(int kidId, DateTime weekStart)
+    {
+        await WeeklyPaymentStatusService.MarkAsPaidAsync(kidId, weekStart);
+        paymentStatuses[(kidId, weekStart)] = true;
+        StateHasChanged(); // Refresh the UI
+    }
+
+    private async Task MarkAsUnpaid(int kidId, DateTime weekStart)
+    {
+        await WeeklyPaymentStatusService.MarkAsUnpaidAsync(kidId, weekStart);
+        paymentStatuses[(kidId, weekStart)] = false;
+        StateHasChanged(); // Refresh the UI
+    }
+
+    private async Task LoadPaymentStatuses()
+    {
+        paymentStatuses.Clear();
+        foreach (var report in reports)
+        {
+            foreach (var weekGroup in reports.GroupBy(r => r.WeekStartDate))
+            {
+                foreach (var kidGroup in weekGroup.GroupBy(r => r.KidName))
+                {
+                    var kidId = kidGroup.First().KidId;
+                    var weekStart = weekGroup.Key;
+                    var isPaid = await WeeklyPaymentStatusService.IsPaidAsync(kidId, weekStart);
+                    paymentStatuses[(kidId, weekStart)] = isPaid;
+                }
+            }
+        }
+    }
+} 

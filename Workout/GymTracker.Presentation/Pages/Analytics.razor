@@ -1,0 +1,79 @@
+@page "/analytics"
+@using GymTracker.Domain.Models
+@using GymTracker.Application.Services
+@inject WeightTrainingSessionService WeightTrainingSessionService
+@inject CardioSessionService CardioSessionService
+@inject IJSRuntime JSRuntime
+
+<h3>Workout Analytics</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Weight Training Progress</h5>
+                <canvas id="weightTrainingChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Cardio Progress</h5>
+                <canvas id="cardioChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<WeightTrainingSession> WeightSessions { get; set; } = new();
+    private List<CardioSession> CardioSessions { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        await RenderCharts();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RenderCharts();
+        }
+    }
+
+    private async Task LoadData()
+    {
+        WeightSessions = (await WeightTrainingSessionService.GetAllAsync()).ToList();
+        CardioSessions = (await CardioSessionService.GetAllAsync()).ToList();
+    }
+
+    private async Task RenderCharts()
+    {
+        // Weight Training Chart
+        var weightData = WeightSessions
+            .GroupBy(s => s.DateTime.Date)
+            .Select(g => new { Date = g.Key, TotalWeight = g.Sum(s => s.Weight) })
+            .OrderBy(d => d.Date)
+            .ToList();
+
+        var weightLabels = weightData.Select(d => d.Date.ToShortDateString()).ToArray();
+        var weightValues = weightData.Select(d => d.TotalWeight).ToArray();
+
+        await JSRuntime.InvokeVoidAsync("renderChart", "weightTrainingChart", weightLabels, weightValues, "Total Weight Lifted");
+
+        // Cardio Chart
+        var cardioData = CardioSessions
+            .GroupBy(s => s.DateTime.Date)
+            .Select(g => new { Date = g.Key, TotalCalories = g.Sum(s => s.CaloriesBurned) })
+            .OrderBy(d => d.Date)
+            .ToList();
+
+        var cardioLabels = cardioData.Select(d => d.Date.ToShortDateString()).ToArray();
+        var cardioValues = cardioData.Select(d => d.TotalCalories).ToArray();
+
+        await JSRuntime.InvokeVoidAsync("renderChart", "cardioChart", cardioLabels, cardioValues, "Total Calories Burned");
+    }
+} 

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\KidsChore\KidsChore.Application\KidsChore.Application.csproj" />
+    <ProjectReference Include="..\KidsChore\KidsChore.Domain\KidsChore.Domain.csproj" />
+    <ProjectReference Include="..\KidsChore\KidsChore.Infrastructure\KidsChore.Infrastructure.csproj" />
+    <ProjectReference Include="..\Workout\GymTracker.Application\GymTracker.Application.csproj" />
+    <ProjectReference Include="..\Workout\GymTracker.Domain\GymTracker.Domain.csproj" />
+    <ProjectReference Include="..\Workout\GymTracker.Infrastructure\GymTracker.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <OutputPath>$(SolutionDir)bin\$(Configuration)\net9.0\</OutputPath>
+  </PropertyGroup>
+
+</Project>

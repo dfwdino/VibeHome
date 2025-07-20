@@ -1,0 +1,243 @@
+@page "/weight-training-sessions"
+@using GymTracker.Domain.Models
+@using GymTracker.Application.Services
+@inject WeightTrainingSessionService WeightTrainingSessionService
+@inject WorkoutTypeService WorkoutTypeService
+@inject LocationService LocationService
+
+<h3>Weight Training Sessions</h3>
+
+<div class="row mb-3">
+    <div class="col">
+        <button class="btn btn-primary" @onclick="() => { ShowAddForm = true; }">Add New Session</button>
+    </div>
+</div>
+
+@if (ShowAddForm || ShowEditForm)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">@(ShowEditForm ? "Edit Weight Training Session" : "Add New Weight Training Session")</h5>
+            <EditForm Model="@(ShowEditForm ? EditSession : NewSession)" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="workoutType" class="form-label">Workout Type</label>
+                    <InputSelect id="workoutType" class="form-select" @bind-Value="WorkoutTypeId">
+                        <option value="0">Select a workout type</option>
+                        @foreach (var type in WorkoutTypes)
+                        {
+                            <option value="@type.Id">@type.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="mb-3">
+                    <label for="location" class="form-label">Location</label>
+                    <InputSelect id="location" class="form-select" @bind-Value="LocationId">
+                        <option value="0">Select a location</option>
+                        @foreach (var location in Locations)
+                        {
+                            <option value="@location.Id">@location.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="mb-3">
+                    <label for="reps" class="form-label">Reps</label>
+                    <InputNumber id="reps" class="form-control" @bind-Value="Reps" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="sets" class="form-label">Sets</label>
+                    <InputNumber id="sets" class="form-control" @bind-Value="Sets" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="weight" class="form-label">Weight (int)</label>
+                    <InputNumber id="weight" class="form-control" @bind-Value="Weight" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="dateTime" class="form-label">Date and Time</label>
+                    <InputDate id="dateTime" class="form-control" @bind-Value="DateTime" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">@(ShowEditForm ? "Update" : "Save")</button>
+                <button type="button" class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<table class="table text-center">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Workout Type</th>
+            <th>Location</th>
+            <th>Reps</th>
+            <th>Sets</th>
+            <th>Weight</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var session in Sessions)
+        {
+            <tr>
+                <td>@session.DateTime.ToShortDateString()</td>
+                <td>@WorkoutTypes.FirstOrDefault(t => t.Id == session.WorkoutTypeId)?.Name</td>
+                <td>@Locations.FirstOrDefault(l => l.Id == session.LocationId)?.Name</td>
+                <td>@session.Reps</td>
+                <td>@session.Sets</td>
+                <td>@((int)session.Weight)</td>
+                <td>
+                    <button class="btn btn-sm btn-primary me-2" @onclick="() => StartEditSession(session)">Edit</button>
+                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteSession(session.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<WeightTrainingSession> Sessions { get; set; } = new();
+    private List<WorkoutType> WorkoutTypes { get; set; } = new();
+    private List<Location> Locations { get; set; } = new();
+    private WeightTrainingSession NewSession { get; set; } = new() { DateTime = DateTime.Now };
+    private WeightTrainingSession EditSession { get; set; } = new();
+    private bool ShowAddForm { get; set; }
+    private bool ShowEditForm { get; set; }
+
+    private int Reps
+    {
+        get => ShowEditForm ? EditSession.Reps : NewSession.Reps;
+        set
+        {
+            if (ShowEditForm)
+                EditSession.Reps = value;
+            else
+                NewSession.Reps = value;
+        }
+    }
+
+    private int Sets
+    {
+        get => ShowEditForm ? EditSession.Sets : NewSession.Sets;
+        set
+        {
+            if (ShowEditForm)
+                EditSession.Sets = value;
+            else
+                NewSession.Sets = value;
+        }
+    }
+
+    private decimal Weight
+    {
+        get => ShowEditForm ? EditSession.Weight : NewSession.Weight;
+        set
+        {
+            if (ShowEditForm)
+                EditSession.Weight = value;
+            else
+                NewSession.Weight = value;
+        }
+    }
+
+    private DateTime DateTime
+    {
+        get => ShowEditForm ? EditSession.DateTime : NewSession.DateTime;
+        set
+        {
+            if (ShowEditForm)
+                EditSession.DateTime = value;
+            else
+                NewSession.DateTime = value;
+        }
+    }
+
+    private int? WorkoutTypeId
+    {
+        get => ShowEditForm ? EditSession.WorkoutTypeId : NewSession.WorkoutTypeId;
+        set
+        {
+            if (ShowEditForm)
+                EditSession.WorkoutTypeId = value ?? 0;
+            else
+                NewSession.WorkoutTypeId = value ?? 0;
+        }
+    }
+
+    private int? LocationId
+    {
+        get => ShowEditForm ? EditSession.LocationId : NewSession.LocationId;
+        set
+        {
+            if (ShowEditForm)
+                EditSession.LocationId = value ?? 0;
+            else
+                NewSession.LocationId = value ?? 0;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        Sessions = (await WeightTrainingSessionService.GetAllAsync())
+            .OrderByDescending(s => s.DateTime)
+            .ToList();
+        WorkoutTypes = (await WorkoutTypeService.GetAllAsync()).ToList();
+        Locations = (await LocationService.GetAllAsync()).ToList();
+    }
+
+    private void StartEditSession(WeightTrainingSession session)
+    {
+        EditSession = new WeightTrainingSession
+        {
+            Id = session.Id,
+            DateTime = session.DateTime,
+            Reps = session.Reps,
+            Weight = session.Weight,
+            WorkoutTypeId = session.WorkoutTypeId,
+            LocationId = session.LocationId
+        };
+        ShowEditForm = true;
+        ShowAddForm = false;
+    }
+
+    private void CancelForm()
+    {
+        ShowAddForm = false;
+        ShowEditForm = false;
+        NewSession = new WeightTrainingSession { DateTime = DateTime.Now };
+        EditSession = new WeightTrainingSession();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (ShowEditForm)
+        {
+            await WeightTrainingSessionService.UpdateAsync(EditSession);
+        }
+        else
+        {
+            await WeightTrainingSessionService.AddAsync(NewSession);
+        }
+        
+        CancelForm();
+        await LoadData();
+    }
+
+    private async void DeleteSession(int id)
+    {
+        await WeightTrainingSessionService.DeleteAsync(id);
+        await LoadData();
+    }
+} 

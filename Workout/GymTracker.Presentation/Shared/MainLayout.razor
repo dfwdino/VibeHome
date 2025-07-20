@@ -1,0 +1,17 @@
+﻿@inherits LayoutComponentBase
+
+<header class="main-header">
+    <button class="hamburger" @onclick="ToggleSidebar">&#9776;</button>
+    <span class="header-title"><span style="font-size:1.7rem;vertical-align:middle;">🏋️‍♂️</span> GymTracker</span>
+</header>
+<div class="main-layout">
+    <NavMenu Class="@(sidebarOpen ? "open" : "")" />
+    <main class="content">
+        @Body
+    </main>
+</div>
+
+@code {
+    private bool sidebarOpen = false;
+    private void ToggleSidebar() => sidebarOpen = !sidebarOpen;
+}

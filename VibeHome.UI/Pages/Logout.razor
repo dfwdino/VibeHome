@@ -1,0 +1,13 @@
+@using global::VibeHome.UI
+@page "/logout"
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+@code {
+    protected override void OnInitialized()
+    {
+        AuthState.Logout();
+        ((CustomAuthenticationStateProvider)AuthStateProvider).NotifyUserAuthentication();
+        Navigation.NavigateTo("/login");
+    }
+} 

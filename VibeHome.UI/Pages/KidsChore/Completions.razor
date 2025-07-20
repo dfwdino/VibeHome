@@ -1,0 +1,323 @@
+@using global::KidsChore.Application.Interfaces
+@using global::KidsChore.Domain.Entities
+@using VibeHome.UI.Shared
+@using Microsoft.AspNetCore.Components
+@page "/KidsChore/completions"
+@attribute [Authorize(Roles = "Parent,Partner")]
+@inject IChoreCompletionService ChoreCompletionService
+@inject IKidService KidService
+@inject IChoreItemService ChoreItemService
+@inject ILocationService LocationService
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+
+
+<h3>Chore Completions</h3>
+
+<button class="btn btn-primary mb-1" @onclick="ToggleForm">@(showForm ? (kidModelIsEdit ? "Edit Completion" : "Hide Form") : "Add Completion")</button>
+<button class="btn btn-outline-secondary ms-2" @onclick="ToggleSearch">@(showSearch ? "Hide Search" : "Show Search")</button>
+<br />
+<div style="margin-bottom: 2rem;"></div>
+
+@if (showSearch)
+{
+    <SearchFilterComponent 
+        TotalCount="@allCompletions.Count" 
+        FilteredCount="@filteredCompletions.Count" 
+        OnFiltersChanged="OnFiltersChanged" />
+}
+
+
+<div class="collapse @(showForm ? "show" : "")" id="completionForm">
+    <EditForm Model="completionModel" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label class="form-label">Kid</label>
+            <InputSelect class="form-control" @bind-Value="completionModel.KidId">
+                <option value="">Select Kid</option>
+                @foreach (var kid in kids)
+                {
+                    <option value="@kid.KidId">@kid.Name</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Chore Item</label>
+            <InputSelect class="form-control" @bind-Value="completionModel.ChoreItemId" @onchange="OnChoreChanged">
+                <option value="">Select Chore</option>
+                @foreach (var chore in chores)
+                {
+                    <option value="@chore.ChoreItemId">@chore.ChoreName</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Location</label>
+            <InputSelect class="form-control" @bind-Value="completionModel.LocationId">
+                <option value="">Select Location</option>
+                @foreach (var location in locations)
+                {
+                    <option value="@location.LocationId">@location.LocationName</option>
+                }
+            </InputSelect>
+        </div>
+        <button type="button" class="btn btn-link mb-2 p-0" @onclick="ToggleDetails">@(showDetails ? "Hide Details" : "Show Details")</button>
+        <br />
+        @if (showDetails)
+        {
+            <div class="mb-3" style="margin-bottom: 0.75rem;">
+                <label class="form-label">Price</label>
+                <InputNumber class="form-control" @bind-Value="completionModel.Price" />
+            </div>
+            <div class="mb-3" style="margin-bottom: 0.75rem;">
+                <label class="form-label">Completion Date/Time</label>
+                <InputDate class="form-control" @bind-Value="completionModel.CompletionDateTime" />
+            </div>
+            <div class="mb-3" style="margin-bottom: 0.75rem;">
+                <label class="form-label">Notes</label>
+                <InputText class="form-control" @bind-Value="completionModel.Notes" />
+            </div>
+        }
+        <button type="submit" class="btn btn-success">@(completionModel.ChoreCompletionId == 0 ? "Add Completion" : "Update Completion")</button>
+        @if (completionModel.ChoreCompletionId != 0)
+        {
+            <button type="button" class="btn btn-secondary ms-1" @onclick="ClearForm">Cancel</button>
+        }
+    </EditForm>
+</div>
+
+<div class="d-none d-md-block" style="text-align:center">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th class="custom-table-header">Kid</th>
+                <th class="custom-table-header">Chore</th>
+                <th class="custom-table-header">Location</th>
+                <th class="custom-table-header">Date</th>
+                <th class="custom-table-header">Notes</th>
+                <th class="custom-table-header">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var completion in filteredCompletions)
+            {
+                <tr>
+                    <td>@kids.FirstOrDefault(k => k.KidId == completion.KidId)?.Name</td>
+                    <td>@chores.FirstOrDefault(c => c.ChoreItemId == completion.ChoreItemId)?.ChoreName</td>
+                    <td>@locations.FirstOrDefault(l => l.LocationId == completion.LocationId)?.LocationName</td>
+                    <td>@completion.CompletionDateTime.ToShortDateString()</td>
+                    <td>@completion.Notes</td>
+                    <td>
+                        <button class="btn btn-sm btn-info me-1" @onclick="() => EditCompletion(completion)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteCompletion(completion.ChoreCompletionId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="d-block d-md-none">
+    @foreach (var completion in filteredCompletions)
+    {
+        <div class="card mb-2 shadow-sm">
+            <div class="card-body p-2">
+                <div><strong>Kid:</strong> @kids.FirstOrDefault(k => k.KidId == completion.KidId)?.Name</div>
+                <div><strong>Chore:</strong> @chores.FirstOrDefault(c => c.ChoreItemId == completion.ChoreItemId)?.ChoreName</div>
+                <div><strong>Location:</strong> @locations.FirstOrDefault(l => l.LocationId == completion.LocationId)?.LocationName</div>
+                <div><strong>Date:</strong> @completion.CompletionDateTime.ToShortDateString()</div>
+                @if (!string.IsNullOrWhiteSpace(completion.Notes))
+                {
+                    <div><strong>Notes:</strong> @completion.Notes</div>
+                }
+                <div class="mt-2 d-flex gap-2">
+                    <button class="btn btn-info flex-fill" @onclick="() => EditCompletion(completion)">Edit</button>
+                    <button class="btn btn-danger flex-fill" @onclick="() => DeleteCompletion(completion.ChoreCompletionId)">Delete</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<ChoreCompletion> allCompletions = new();
+    private List<ChoreCompletion> filteredCompletions = new();
+    private ChoreCompletion completionModel = new() { CompletionDateTime = DateTime.Now };
+    private List<Kid> kids = new();
+    private List<ChoreItem> chores = new();
+    private List<Location> locations = new();
+    private bool showForm = false;
+    private bool kidModelIsEdit => completionModel.ChoreCompletionId != 0;
+    private bool showDetails = false;
+    private bool showSearch = false;
+    private SearchFilterComponent.SearchFilterCriteria currentFilters = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Additional security check to ensure only Parent or Partner roles can access
+        if (AuthState.CurrentUser?.Role != "Parent" && AuthState.CurrentUser?.Role != "Partner")
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+        
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        allCompletions = (await ChoreCompletionService.GetAllAsync())
+            .Where(c => !c.IsDeleted)
+            .OrderByDescending(c => c.CompletionDateTime)
+            .ThenBy(c => c.ChoreCompletionId)
+            .ToList();
+        filteredCompletions = allCompletions;
+        kids = (await KidService.GetAllAsync()).Where(k => !k.IsDeleted).ToList();
+        chores = (await ChoreItemService.GetAllAsync()).Where(c => !c.IsDeleted).ToList();
+        locations = (await LocationService.GetAllAsync()).Where(l => !l.IsDeleted).ToList();
+        // Set default location if not editing
+        if (completionModel.ChoreCompletionId == 0)
+        {
+            var defaultLoc = locations.FirstOrDefault(l => l.LocationName.Equals("Daddy's Home", StringComparison.OrdinalIgnoreCase));
+            if (defaultLoc != null)
+                completionModel.LocationId = defaultLoc.LocationId;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            if (completionModel.ChoreCompletionId == 0)
+            {
+                await ChoreCompletionService.AddAsync(completionModel);
+                NotificationService.ShowSuccess("Chore completion added successfully!");
+            }
+            else
+            {
+                await ChoreCompletionService.UpdateAsync(completionModel);
+                NotificationService.ShowSuccess("Chore completion updated successfully!");
+            }
+            await LoadData();
+            ClearForm();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.ShowError($"Error saving completion: {ex.Message}");
+        }
+    }
+
+    private void EditCompletion(ChoreCompletion completion)
+    {
+        completionModel = new ChoreCompletion
+        {
+            ChoreCompletionId = completion.ChoreCompletionId,
+            KidId = completion.KidId,
+            ChoreItemId = completion.ChoreItemId,
+            LocationId = completion.LocationId,
+            CompletionDateTime = completion.CompletionDateTime,
+            Notes = completion.Notes
+        };
+        showForm = true;
+    }
+
+    private async Task DeleteCompletion(int id)
+    {
+        try
+        {
+            await ChoreCompletionService.DeleteAsync(id);
+            NotificationService.ShowSuccess("Chore completion deleted successfully!");
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.ShowError($"Error deleting completion: {ex.Message}");
+        }
+    }
+
+    private void ClearForm()
+    {
+        completionModel = new ChoreCompletion { CompletionDateTime = DateTime.Now };
+        // Set default location
+        var defaultLoc = locations.FirstOrDefault(l => l.LocationName.Equals("Daddy's Home", StringComparison.OrdinalIgnoreCase));
+        if (defaultLoc != null)
+            completionModel.LocationId = defaultLoc.LocationId;
+        showForm = false;
+    }
+
+    private void ToggleForm()
+    {
+        showForm = !showForm;
+    }
+
+    private void OnChoreChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int choreId))
+        {
+            var selectedChore = chores.FirstOrDefault(c => c.ChoreItemId == choreId);
+            if (selectedChore != null && completionModel.ChoreCompletionId == 0)
+            {
+                completionModel.Price = selectedChore.Price;
+            }
+        }
+    }
+
+    private void ToggleDetails()
+    {
+        showDetails = !showDetails;
+    }
+
+    private void ToggleSearch()
+    {
+        showSearch = !showSearch;
+    }
+
+    private async Task OnFiltersChanged(SearchFilterComponent.SearchFilterCriteria filters)
+    {
+        currentFilters = filters;
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        var query = allCompletions.AsQueryable();
+
+        // Apply date filters first (these work with expression trees)
+        if (currentFilters.StartDate.HasValue)
+        {
+            query = query.Where(c => c.CompletionDateTime.Date >= currentFilters.StartDate.Value.Date);
+        }
+
+        if (currentFilters.EndDate.HasValue)
+        {
+            query = query.Where(c => c.CompletionDateTime.Date <= currentFilters.EndDate.Value.Date);
+        }
+
+        // Get the filtered results first
+        var dateFilteredResults = query.ToList();
+
+        // Apply search term to the in-memory results
+        if (!string.IsNullOrWhiteSpace(currentFilters.SearchTerm))
+        {
+            var searchTerm = currentFilters.SearchTerm.ToLower();
+            filteredCompletions = dateFilteredResults.Where(c =>
+            {
+                var kidName = kids.FirstOrDefault(k => k.KidId == c.KidId)?.Name ?? "";
+                var choreName = chores.FirstOrDefault(ch => ch.ChoreItemId == c.ChoreItemId)?.ChoreName ?? "";
+                var locationName = locations.FirstOrDefault(l => l.LocationId == c.LocationId)?.LocationName ?? "";
+                var notes = c.Notes ?? "";
+
+                return kidName.ToLower().Contains(searchTerm) ||
+                       choreName.ToLower().Contains(searchTerm) ||
+                       locationName.ToLower().Contains(searchTerm) ||
+                       notes.ToLower().Contains(searchTerm);
+            }).ToList();
+        }
+        else
+        {
+            filteredCompletions = dateFilteredResults;
+        }
+
+        StateHasChanged();
+    }
+} 

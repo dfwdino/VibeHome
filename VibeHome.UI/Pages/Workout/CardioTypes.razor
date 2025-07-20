@@ -1,0 +1,115 @@
+@page "/Workout/cardio-types"
+@using GymTracker.Domain.Models
+@using GymTracker.Application.Services
+@inject CardioTypeService CardioTypeService
+
+<h3>Cardio Types</h3>
+
+<div class="row mb-3">
+    <div class="col">
+        <button class="btn btn-primary" @onclick="ShowAddTypeForm">Add New Cardio Type</button>
+    </div>
+</div>
+
+@if (ShowAddForm || ShowEditForm)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">@((ShowEditForm ? "Edit" : "Add New") + " Cardio Type")</h5>
+            <EditForm Model="CurrentType" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <InputText id="name" class="form-control" @bind-Value="CurrentType.Name" />
+                </div>
+                <button type="submit" class="btn btn-primary">@((ShowEditForm ? "Update" : "Save"))</button>
+                <button type="button" class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var type in Types)
+        {
+            <tr>
+                <td>@type.Name</td>
+                <td>
+                    <button class="btn btn-sm btn-primary me-2" @onclick="() => StartEditType(type)">Edit</button>
+                    <button class="btn btn-sm btn-danger" @onclick="async () => await DeleteType(type.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<CardioType> Types { get; set; } = new();
+    private CardioType NewType { get; set; } = new();
+    private CardioType EditType { get; set; } = new();
+    private bool ShowAddForm { get; set; }
+    private bool ShowEditForm { get; set; }
+    private CardioType CurrentType => ShowEditForm ? EditType : NewType;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        Types = (await CardioTypeService.GetAllAsync()).ToList();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (ShowEditForm)
+        {
+            await CardioTypeService.UpdateAsync(EditType);
+        }
+        else
+        {
+            await CardioTypeService.AddAsync(NewType);
+        }
+        NewType = new CardioType();
+        EditType = new CardioType();
+        ShowAddForm = false;
+        ShowEditForm = false;
+        await LoadData();
+    }
+
+    private void StartEditType(CardioType type)
+    {
+        EditType = type;
+        ShowEditForm = true;
+        ShowAddForm = false;
+    }
+
+    private void CancelForm()
+    {
+        ShowAddForm = false;
+        ShowEditForm = false;
+        NewType = new CardioType();
+        EditType = new CardioType();
+    }
+
+    private async Task DeleteType(int id)
+    {
+        await CardioTypeService.DeleteAsync(id);
+        await LoadData();
+    }
+
+    private void ShowAddTypeForm()
+    {
+        ShowAddForm = true;
+        ShowEditForm = false;
+    }
+} 
