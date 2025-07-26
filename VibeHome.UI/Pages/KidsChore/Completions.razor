@@ -93,9 +93,8 @@
             <tr>
                 <th class="custom-table-header">Kid</th>
                 <th class="custom-table-header">Chore</th>
-                <th class="custom-table-header">Location</th>
+              @*   <th class="custom-table-header">Location</th> *@
                 <th class="custom-table-header">Date</th>
-                <th class="custom-table-header">Notes</th>
                 <th class="custom-table-header">Actions</th>
             </tr>
         </thead>
@@ -104,10 +103,12 @@
             {
                 <tr>
                     <td>@kids.FirstOrDefault(k => k.KidId == completion.KidId)?.Name</td>
-                    <td>@chores.FirstOrDefault(c => c.ChoreItemId == completion.ChoreItemId)?.ChoreName</td>
-                    <td>@locations.FirstOrDefault(l => l.LocationId == completion.LocationId)?.LocationName</td>
+                    <td>@chores.FirstOrDefault(c => c.ChoreItemId == completion.ChoreItemId)?.ChoreName 
+                        @if(!string.IsNullOrWhiteSpace(completion.Notes)){
+                        <span style="font-style:italic"> - @completion.Notes</span>}
+                    </td>
+      @*               <td>@locations.FirstOrDefault(l => l.LocationId == completion.LocationId)?.LocationName</td> *@
                     <td>@completion.CompletionDateTime.ToShortDateString()</td>
-                    <td>@completion.Notes</td>
                     <td>
                         <button class="btn btn-sm btn-info me-1" @onclick="() => EditCompletion(completion)">Edit</button>
                         <button class="btn btn-sm btn-danger" @onclick="() => DeleteCompletion(completion.ChoreCompletionId)">Delete</button>
@@ -157,7 +158,7 @@
         // Additional security check to ensure only Parent or Partner roles can access
         if (AuthState.CurrentUser?.Role != "Parent" && AuthState.CurrentUser?.Role != "Partner")
         {
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("Login");
             return;
         }
         

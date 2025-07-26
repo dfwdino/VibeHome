@@ -4,6 +4,7 @@
 @page "/KidsChore/users"
 @inject IUserService UserService
 @inject NavigationManager NavigationManager
+@attribute [Authorize(Roles = "Parent,Partner")]
 
 <h3>Users Management</h3>
 
@@ -84,7 +85,7 @@
     {
         if (AuthState.CurrentUser?.Role != "Parent")
         {
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("");
             return;
         }
         await LoadUsers();

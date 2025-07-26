@@ -5,7 +5,7 @@
 @inject IWeeklyPaymentStatusService WeeklyPaymentStatusService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<h3>Weekly Earnings Report - @DateTime.Now.ToString("MMMM dd, yyyy")</h3>
+<h3>Finished Chores as of @DateTime.Now.ToString("MMMM, dd")</h3>
 
 @if (reports.Count == 0)
 {
@@ -16,6 +16,8 @@ else
     bool isFirst = true;
     foreach (var weekGroup in reports.GroupBy(r => r.WeekStartDate).OrderByDescending(g => g.Key))
     {
+        var weekValues = weekGroup.SelectMany(r => r.Completions).Select(c => c.Price != 0 ? c.Price : (c.ChoreItem?.Price ?? 0)).ToList();
+        var weekGrandTotal = weekValues.Sum();
         if (!isFirst)
         {
             <div style="height: 18px;"></div>
@@ -25,7 +27,7 @@ else
         var weekStart = weekGroup.Key;
         var weekEnd = weekStart.AddDays(6);
         <div class="bg-info text-dark text-center mb-2" style="padding-top: 12px; padding-bottom: 12px; border-radius: 4px;">
-            <strong>Week of @weekStart.ToString("MMMM dd, yyyy") to @weekEnd.ToString("MMMM dd, yyyy")</strong>
+            <strong>From @weekStart.ToString("MMMM, dd") to @weekEnd.ToString("MMMM dd, yyyy")</strong>
         </div>
         <table class="table table-bordered table-sm text-center">
             <thead>
@@ -39,34 +41,41 @@ else
                 @foreach (var kidGroup in weekGroup.GroupBy(r => r.KidName).OrderBy(g => g.Key))
                 {
                     var completions = kidGroup.SelectMany(r => r.Completions).ToList();
-                    foreach (var completion in completions)
-                    {
-                        <tr>
-                            <td class="text-center">@kidGroup.Key</td>
-                            <td class="text-center">
-                                @completion.ChoreItem?.ChoreName @if (!string.IsNullOrWhiteSpace(completion.Notes)) { <span> - @completion.Notes</span> }<span> - @completion.CompletionDateTime.ToString("MM/dd/yyyy")</span>
-                            </td>
-                            <td class="text-center">@((completion.Price != 0 ? completion.Price : (completion.ChoreItem?.Price ?? 0)).ToString("C"))</td>
-                        </tr>
-                    }
                     var values = completions.Select(c => c.Price != 0 ? c.Price : (c.ChoreItem?.Price ?? 0)).ToList();
                     var positiveTotal = values.Where(v => v > 0).Sum();
                     var negativeTotal = values.Where(v => v < 0).Sum();
                     var spending = (positiveTotal * 0.5m) + negativeTotal;
                     var savings = positiveTotal * 0.25m;
                     var retirement = positiveTotal * 0.25m;
-                    
+
                     // Get payment status for this kid and week
                     var isPaid = paymentStatuses.GetValueOrDefault((kidGroup.First().KidId, weekStart), false);
-                    
+
+                    // Restore chore rows
+                    foreach (var completion in completions)
+                    {
+                        <tr>
+                            <td class="text-center">@kidGroup.Key</td>
+                            <td class="text-center">
+                                <strong>@completion.ChoreItem?.ChoreName</strong>
+                                @if (!string.IsNullOrWhiteSpace(completion.Notes))
+                                {
+                                    <span> - <em>@completion.Notes</em></span>
+                                }
+                                <span> - @completion.CompletionDateTime.ToString("MM/dd/yyyy")</span>
+                            </td>
+                            <td class="text-center">@((completion.Price != 0 ? completion.Price : (completion.ChoreItem?.Price ?? 0)).ToString("C"))</td>
+                        </tr>
+                    }
                     <tr class="table-secondary">
-                        <td colspan="3" class="text-center">
-                            <strong>@kidGroup.Key's Amount:</strong>
+                        <td></td>
+                        <td class="text-center">
+                            <strong></strong>
                             <span class="ms-3"><strong>Spending:</strong> @spending.ToString("C")</span>
                             <span class="ms-3"><strong>Savings:</strong> @savings.ToString("C")</span>
                             <span class="ms-3"><strong>Retirement:</strong> @retirement.ToString("C")</span>
                             <span class="ms-3">
-                                <strong>Status:</strong> 
+                                <strong>Status:</strong>
                                 @if (isPaid)
                                 {
                                     <span class="text-success">✅ Paid</span>
@@ -85,11 +94,21 @@ else
                                 }
                             </span>
                         </td>
+                        <td class="text-center"><strong>@values.Sum().ToString("C")</strong></td>
                     </tr>
-                    <tr><td colspan="3" style="height: 16px;"></td></tr>
+
+                    <tr style="border:none;color:none">
+                        <td colspan="3" style="border:none;color:none">
+                            <hr style="height:10px;border-width:0;color:black;background-color:blue" />
+                        </td>
+
+                    </tr>
                 }
+
+
             </tbody>
         </table>
+
     }
 }
 

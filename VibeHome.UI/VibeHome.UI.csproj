@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
+    <Content Remove="Pages\KidsChore\ChoreItems.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\KidsChore\KidsChore.Application\KidsChore.Application.csproj" />
     <ProjectReference Include="..\KidsChore\KidsChore.Domain\KidsChore.Domain.csproj" />
     <ProjectReference Include="..\KidsChore\KidsChore.Infrastructure\KidsChore.Infrastructure.csproj" />

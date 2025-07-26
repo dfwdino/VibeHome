@@ -100,6 +100,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (AuthState.CurrentUser?.Role != "Parent")
+        {
+            NavigationManager.NavigateTo("login");
+            return;
+        }
         await LoadChores();
     }
 
