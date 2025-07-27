@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <Content Remove="Pages\KidsChore\ChoreItems.razor" />
+    <Content Remove="Pages\KidsChore\Login.razor" />
   </ItemGroup>
 
   <ItemGroup>
