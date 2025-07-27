@@ -48,7 +48,7 @@
             <tr>
                 <th class="custom-table-header">Chore</th>
                 <th class="custom-table-header">Price</th>
-                <th class="custom-table-header">Description</th>
+                @* <th class="custom-table-header">Description</th> *@
                 <th class="custom-table-header">Actions</th>
             </tr>
         </thead>
@@ -56,9 +56,12 @@
             @foreach (var chore in filteredChores)
             {
                 <tr>
-                    <td>@chore.ChoreName.ToTitleCase()</td>
+                    <td>@chore.ChoreName.ToTitleCase() @if(!string.IsNullOrEmpty(chore.Description)) {
+                             <span style="font-style:italic"> - @chore.Description </span>
+                        } 
+                    </td>
                     <td>@FormatPrice(chore.Price)</td>
-                    <td>@chore.Description</td>
+                    @* <td>@chore.Description</td> *@
                     <td>
                         <button class="btn btn-sm btn-info me-1" @onclick="@(() => EditChore(chore))" disabled="@isSubmitting">Edit</button>
                         <button class="btn btn-sm btn-danger" @onclick="async () => await DeleteChore(chore.ChoreItemId)" disabled="@isSubmitting">Delete</button>
