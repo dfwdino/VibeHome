@@ -1,0 +1,59 @@
+@using VibeHome.Application.Interfaces
+@using VibeHome.Domain.Entities
+@page "/KidsChore/month-report"
+@inject IReportService ReportService
+
+<h3>Monthly Report by Kid</h3>
+
+@if (reports.Count == 0)
+{
+    <div class="alert alert-info">No report data available yet.</div>
+}
+else
+{
+    foreach (var monthGroup in reports.OrderByDescending(r => r.Year).ThenByDescending(r => r.Month).GroupBy(r => new { r.Year, r.Month }))
+    {
+        var month = monthGroup.Key.Month;
+        var year = monthGroup.Key.Year;
+        bool isCurrent = (month == DateTime.Now.Month && year == DateTime.Now.Year);
+        <div class="@(isCurrent ? "bg-success text-white border border-success text-center mb-2" : "bg-info text-dark border border-info text-center mb-2")" style="padding-top: 12px; padding-bottom: 12px; border-radius: 4px;">
+            <strong>@(isCurrent ? "Current - " : "") @System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month) @year</strong>
+        </div>
+        <table class="table table-bordered table-sm text-center">
+            <thead>
+                <tr>
+                    <th class="text-center">Kid</th>
+                    <th class="text-center">Total Made</th>
+                    <th class="text-center">Spending (50%)</th>
+                    <th class="text-center">Saving (25%)</th>
+                    <th class="text-center">401k (25%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var kidGroup in monthGroup.OrderBy(r => r.KidName))
+                {
+                    var positiveTotal = kidGroup.TotalEarnings > 0 ? kidGroup.TotalEarnings : 0;
+                    var spending = positiveTotal * 0.5m;
+                    var saving = positiveTotal * 0.25m;
+                    var retirement = positiveTotal * 0.25m;
+                    <tr>
+                        <td>@kidGroup.KidName</td>
+                        <td>@kidGroup.TotalEarnings.ToString("C")</td>
+                        <td>@spending.ToString("C")</td>
+                        <td>@saving.ToString("C")</td>
+                        <td>@retirement.ToString("C")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private List<MonthlyEarningsReport> reports = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        reports = (await ReportService.GetMonthlyEarningsAsync()).ToList();
+    }
+}

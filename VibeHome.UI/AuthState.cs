@@ -1,4 +1,4 @@
-using KidsChore.Domain.Entities;
+using VibeHome.Domain.Entities;
 
 namespace VibeHome.UI
 {

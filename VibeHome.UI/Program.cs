@@ -1,16 +1,10 @@
-using GymTracker.Application.Services;
-using GymTracker.Domain.Repositories;
-using GymTracker.Infrastructure.Data;
-using GymTracker.Infrastructure.Repositories;
-using KidsChore.Application.Interfaces;
-using KidsChore.Infrastructure.Data;
-using KidsChore.Infrastructure.Repositories;
-using KidsChore.Infrastructure.Services;
+using VibeHome.Application.Interfaces;
+using VibeHome.Infrastructure.Data;
+using VibeHome.Infrastructure.Repositories;
+using VibeHome.Infrastructure.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using VibeHome.UI.Data;
-using GymTrackerLocationService = GymTracker.Application.Services.LocationService;
-using KidsChoreLocationService = KidsChore.Infrastructure.Services.LocationService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,28 +27,26 @@ builder.Services.AddSignalR(options =>
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<VibeHome.UI.Shared.NotificationService>();
 builder.Services.AddScoped<AuthenticationStateProvider, VibeHome.UI.CustomAuthenticationStateProvider>();
+// KidsChore Services
 builder.Services.AddScoped<IChoreItemService, ChoreItemService>();
 builder.Services.AddScoped<IChoreCompletionService, ChoreCompletionService>();
 builder.Services.AddScoped<IKidService, KidService>();
-builder.Services.AddScoped<ILocationService, KidsChoreLocationService>();
+builder.Services.AddScoped<IKidsChoreLocationService, KidsChoreLocationService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IWeeklyPaymentStatusService, WeeklyPaymentStatusService>();
-builder.Services.AddDbContext<KidsChoreDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("KidsChoreConnection")));
+
+// Workout Services
+builder.Services.AddScoped<ICardioSessionService, CardioSessionService>();
+builder.Services.AddScoped<ICardioTypeService, CardioTypeService>();
+builder.Services.AddScoped<IWeightTrainingSessionService, WeightTrainingSessionService>();
+builder.Services.AddScoped<IWorkoutTypeService, WorkoutTypeService>();
+builder.Services.AddScoped<IWorkoutLocationService, WorkoutLocationService>();
+
+// Database and Repository
+builder.Services.AddDbContext<VibeHomeDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("VibeHomeConnection")));
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("KidsChoreConnection")));
-builder.Services.AddScoped<WeightTrainingSessionService>();
-builder.Services.AddScoped<CardioSessionService>();
-builder.Services.AddScoped<GymTrackerLocationService>();
-builder.Services.AddScoped<WorkoutTypeService>();
-builder.Services.AddScoped<CardioTypeService>();
-builder.Services.AddScoped<IWeightTrainingSessionRepository, WeightTrainingSessionRepository>();
-builder.Services.AddScoped<ICardioSessionRepository, CardioSessionRepository>();
-builder.Services.AddScoped<ILocationRepository, LocationRepository>();
-builder.Services.AddScoped<IWorkoutTypeRepository, WorkoutTypeRepository>();
-builder.Services.AddScoped<ICardioTypeRepository, CardioTypeRepository>();
 
 var app = builder.Build();
 

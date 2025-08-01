@@ -1,9 +1,9 @@
 @page "/Workout/weight-training-sessions"
-@using GymTracker.Domain.Models
-@using GymTracker.Application.Services
-@inject WeightTrainingSessionService WeightTrainingSessionService
-@inject WorkoutTypeService WorkoutTypeService
-@inject LocationService LocationService
+@using VibeHome.Domain.Entities
+@using VibeHome.Application.Interfaces
+@inject IWeightTrainingSessionService WeightTrainingSessionService
+@inject IWorkoutTypeService WorkoutTypeService
+@inject IWorkoutLocationService LocationService
 
 <h3>Weight Training Sessions</h3>
 
@@ -105,7 +105,7 @@
 @code {
     private List<WeightTrainingSession> Sessions { get; set; } = new();
     private List<WorkoutType> WorkoutTypes { get; set; } = new();
-    private List<Location> Locations { get; set; } = new();
+    private List<WorkoutLocation> Locations { get; set; } = new();
     private WeightTrainingSession NewSession { get; set; } = new() { DateTime = DateTime.Now };
     private WeightTrainingSession EditSession { get; set; } = new();
     private bool ShowAddForm { get; set; }

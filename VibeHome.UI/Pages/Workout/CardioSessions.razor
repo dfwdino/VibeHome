@@ -1,9 +1,9 @@
 @page "/Workout/cardio-sessions"
-@using GymTracker.Domain.Models
-@using GymTracker.Application.Services
-@inject CardioSessionService CardioSessionService
-@inject CardioTypeService CardioTypeService
-@inject LocationService LocationService
+@using VibeHome.Domain.Entities
+@using VibeHome.Application.Interfaces
+@inject ICardioSessionService CardioSessionService
+@inject ICardioTypeService CardioTypeService
+@inject IWorkoutLocationService LocationService
 
 <h3>Cardio Sessions</h3>
 
@@ -105,7 +105,7 @@
 @code {
     private List<CardioSession> Sessions { get; set; } = new();
     private List<CardioType> CardioTypes { get; set; } = new();
-    private List<Location> Locations { get; set; } = new();
+    private List<WorkoutLocation> Locations { get; set; } = new();
     private CardioSession NewSession { get; set; } = new() { DateTime = DateTime.Now };
     private CardioSession EditSession { get; set; } = new();
     private int? DurationMinutes { get; set; }

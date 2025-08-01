@@ -1,8 +1,8 @@
 @page "/Workout/analytics"
-@using GymTracker.Domain.Models
-@using GymTracker.Application.Services
-@inject WeightTrainingSessionService WeightTrainingSessionService
-@inject CardioSessionService CardioSessionService
+@using VibeHome.Domain.Entities
+@using VibeHome.Application.Interfaces
+@inject IWeightTrainingSessionService WeightTrainingSessionService
+@inject ICardioSessionService CardioSessionService
 @inject IJSRuntime JSRuntime
 
 <h3>Workout Analytics</h3>

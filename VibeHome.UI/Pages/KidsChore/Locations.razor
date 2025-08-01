@@ -1,9 +1,9 @@
-@using global::KidsChore.Application.Interfaces
-@using global::KidsChore.Domain.Entities
+@using VibeHome.Application.Interfaces
+@using VibeHome.Domain.Entities
 @using VibeHome.UI.Shared
 @page "/KidsChore/locations"
 @attribute [Authorize(Roles = "Parent")]
-@inject ILocationService LocationService
+@inject IKidsChoreLocationService LocationService
 @inject NavigationManager NavigationManager
 
 <h3>Locations</h3>
@@ -72,8 +72,8 @@
 </div>
 
 @code {
-    private List<Location> locations = new();
-    private Location locationModel = new();
+    private List<KidsChoreLocation> locations = new();
+    private KidsChoreLocation locationModel = new();
     private bool showForm = false;
     private bool isEdit => locationModel.LocationId != 0;
 
@@ -97,9 +97,9 @@
         ClearForm();
     }
 
-    private void EditLocation(Location location)
+    private void EditLocation(KidsChoreLocation location)
     {
-        locationModel = new Location
+        locationModel = new KidsChoreLocation
         {
             LocationId = location.LocationId,
             LocationName = location.LocationName,
@@ -116,7 +116,7 @@
 
     private void ClearForm()
     {
-        locationModel = new Location();
+        locationModel = new KidsChoreLocation();
         showForm = false;
     }
 

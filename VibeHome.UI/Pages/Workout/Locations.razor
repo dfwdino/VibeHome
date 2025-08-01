@@ -1,7 +1,7 @@
 @page "/Workout/locations"
-@using GymTracker.Domain.Models
-@using GymTracker.Application.Services
-@inject LocationService LocationService
+@using VibeHome.Domain.Entities
+@using VibeHome.Application.Interfaces
+@inject IWorkoutLocationService LocationService
 
 <h3>Locations</h3>
 
@@ -52,12 +52,12 @@
 </table>
 
 @code {
-    private List<Location> LocationList { get; set; } = new();
-    private Location NewLocation { get; set; } = new();
-    private Location EditLocation { get; set; } = new();
+    private List<WorkoutLocation> LocationList { get; set; } = new();
+    private WorkoutLocation NewLocation { get; set; } = new();
+    private WorkoutLocation EditLocation { get; set; } = new();
     private bool ShowAddForm { get; set; }
     private bool ShowEditForm { get; set; }
-    private Location CurrentLocation => ShowEditForm ? EditLocation : NewLocation;
+    private WorkoutLocation CurrentLocation => ShowEditForm ? EditLocation : NewLocation;
 
     protected override async Task OnInitializedAsync()
     {
@@ -79,14 +79,14 @@
         {
             await LocationService.AddAsync(NewLocation);
         }
-        NewLocation = new Location();
-        EditLocation = new Location();
+        NewLocation = new WorkoutLocation();
+        EditLocation = new WorkoutLocation();
         ShowAddForm = false;
         ShowEditForm = false;
         await LoadData();
     }
 
-    private void StartEditLocation(Location location)
+    private void StartEditLocation(WorkoutLocation location)
     {
         EditLocation = location;
         ShowEditForm = true;
@@ -97,8 +97,8 @@
     {
         ShowAddForm = false;
         ShowEditForm = false;
-        NewLocation = new Location();
-        EditLocation = new Location();
+        NewLocation = new WorkoutLocation();
+        EditLocation = new WorkoutLocation();
     }
 
     private async Task DeleteLocation(int id)

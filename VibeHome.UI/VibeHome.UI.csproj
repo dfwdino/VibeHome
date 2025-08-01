@@ -6,12 +6,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KidsChore\KidsChore.Application\KidsChore.Application.csproj" />
-    <ProjectReference Include="..\KidsChore\KidsChore.Domain\KidsChore.Domain.csproj" />
-    <ProjectReference Include="..\KidsChore\KidsChore.Infrastructure\KidsChore.Infrastructure.csproj" />
-    <ProjectReference Include="..\Workout\GymTracker.Application\GymTracker.Application.csproj" />
-    <ProjectReference Include="..\Workout\GymTracker.Domain\GymTracker.Domain.csproj" />
-    <ProjectReference Include="..\Workout\GymTracker.Infrastructure\GymTracker.Infrastructure.csproj" />
+    <ProjectReference Include="..\VibeHome.Domain\VibeHome.Domain.csproj" />
+    <ProjectReference Include="..\VibeHome.Application\VibeHome.Application.csproj" />
+    <ProjectReference Include="..\VibeHome.Infrastructure\VibeHome.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <PropertyGroup>

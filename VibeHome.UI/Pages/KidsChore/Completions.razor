@@ -1,5 +1,5 @@
-@using global::KidsChore.Application.Interfaces
-@using global::KidsChore.Domain.Entities
+@using VibeHome.Application.Interfaces
+@using VibeHome.Domain.Entities
 @using VibeHome.UI.Shared
 @using Microsoft.AspNetCore.Components
 @page "/KidsChore/completions"
@@ -7,7 +7,7 @@
 @inject IChoreCompletionService ChoreCompletionService
 @inject IKidService KidService
 @inject IChoreItemService ChoreItemService
-@inject ILocationService LocationService
+@inject IKidsChoreLocationService LocationService
 @inject NotificationService NotificationService
 @inject NavigationManager NavigationManager
 
@@ -146,7 +146,7 @@
     private ChoreCompletion completionModel = new() { CompletionDateTime = DateTime.Now };
     private List<Kid> kids = new();
     private List<ChoreItem> chores = new();
-    private List<Location> locations = new();
+    private List<KidsChoreLocation> locations = new();
     private bool showForm = false;
     private bool kidModelIsEdit => completionModel.ChoreCompletionId != 0;
     private bool showDetails = false;
@@ -154,14 +154,7 @@
     private SearchFilterComponent.SearchFilterCriteria currentFilters = new();
 
     protected override async Task OnInitializedAsync()
-    {
-        // Additional security check to ensure only Parent or Partner roles can access
-        if (AuthState.CurrentUser?.Role != "Parent" && AuthState.CurrentUser?.Role != "Partner")
-        {
-            NavigationManager.NavigateTo("Login");
-            return;
-        }
-        
+    {                               
         await LoadData();
     }
 

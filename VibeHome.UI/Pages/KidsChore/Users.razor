@@ -1,5 +1,5 @@
-@using global::KidsChore.Application.Interfaces
-@using global::KidsChore.Domain.Entities
+@using VibeHome.Application.Interfaces
+@using VibeHome.Domain.Entities
 @using global::VibeHome.UI
 @page "/KidsChore/users"
 @inject IUserService UserService
@@ -83,11 +83,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (AuthState.CurrentUser?.Role != "Parent")
-        {
-            NavigationManager.NavigateTo("");
-            return;
-        }
+       
         await LoadUsers();
     }
 
