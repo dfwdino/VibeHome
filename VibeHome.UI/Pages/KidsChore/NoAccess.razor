@@ -19,6 +19,6 @@
     private void GoToLogin()
     {
         var returnUrl = NavigationManager.Uri;
-        NavigationManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(returnUrl)}");
+        NavigationManager.NavigateTo($"login?returnUrl={Uri.EscapeDataString(returnUrl)}");
     }
 } 
