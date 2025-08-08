@@ -5,7 +5,7 @@
 @inject IWeeklyPaymentStatusService WeeklyPaymentStatusService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<h3>Finished Chores as of @DateTime.Now.ToString("MMMM, dd")</h3>
+<h3 style="text-align:center">Chores Done - @DateTime.Now.ToString("MM/dd")</h3>
 
 @if (reports.Count == 0)
 {
