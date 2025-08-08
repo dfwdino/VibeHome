@@ -2,7 +2,7 @@
 @using VibeHome.Domain.Entities
 @using VibeHome.UI.Shared
 @page "/KidsChore/chores"
-@attribute [Authorize(Roles = "Parent")]
+@attribute [Authorize(Roles = "parent")]
 @inject IChoreItemService ChoreItemService
 @inject NavigationManager NavigationManager
 

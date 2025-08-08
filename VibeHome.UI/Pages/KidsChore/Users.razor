@@ -4,7 +4,7 @@
 @page "/KidsChore/users"
 @inject IUserService UserService
 @inject NavigationManager NavigationManager
-@attribute [Authorize(Roles = "Parent,Partner")]
+@attribute [Authorize(Roles = "parent,parent")]
 
 <h3>Users Management</h3>
 
@@ -22,8 +22,8 @@
             <label class="form-label">Role</label>
             <InputSelect class="form-select" @bind-Value="userModel.Role">
                 <option value="">Select Role</option>
-                <option value="Parent">Parent</option>
-                <option value="Partner">Partner</option>
+                <option value="parent">parent</option>
+                <option value="parent">parent</option>
                 <option value="Child">Child</option>
             </InputSelect>
         </div>

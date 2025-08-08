@@ -79,7 +79,7 @@ else
                                 @if (isPaid)
                                 {
                                     <span class="text-success">✅ Paid</span>
-                                    @if (isParent)
+                                    @if (isparent)
                                     {
                                         <button class="btn btn-sm btn-warning ms-2" @onclick="() => MarkAsUnpaid(kidGroup.First().KidId, weekStart)">Mark Unpaid</button>
                                     }
@@ -87,7 +87,7 @@ else
                                 else
                                 {
                                     <span class="text-danger">❌ Unpaid</span>
-                                    @if (isParent)
+                                    @if (isparent)
                                     {
                                         <button class="btn btn-sm btn-success ms-2" @onclick="() => MarkAsPaid(kidGroup.First().KidId, weekStart)">Mark Paid</button>
                                     }
@@ -115,12 +115,12 @@ else
 @code {
     private List<WeeklyEarningsReport> reports = new();
     private Dictionary<(int KidId, DateTime WeekStart), bool> paymentStatuses = new();
-    private bool isParent = false;
+    private bool isparent = false;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        isParent = authState.User.IsInRole("Parent");
+        isparent = authState.User.IsInRole("parent");
         reports = (await ReportService.GetWeeklyEarningsAsync()).ToList();
         await LoadPaymentStatuses();
     }

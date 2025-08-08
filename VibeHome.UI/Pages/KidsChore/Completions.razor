@@ -3,7 +3,7 @@
 @using VibeHome.UI.Shared
 @using Microsoft.AspNetCore.Components
 @page "/KidsChore/completions"
-@attribute [Authorize(Roles = "Parent,Partner")]
+@attribute [Authorize(Roles = "parent")]
 @inject IChoreCompletionService ChoreCompletionService
 @inject IKidService KidService
 @inject IChoreItemService ChoreItemService
