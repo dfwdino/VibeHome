@@ -1,0 +1,161 @@
+@page "/Workout/journal"
+@using VibeHome.Domain.Entities
+@using VibeHome.Application.Interfaces
+@inject IJournalEntryService JournalEntryService
+
+<h3>Weight Loss Journal</h3>
+
+@if (StatsSet)
+{
+    <div class="mb-4 card p-3">
+        <h5>Last 30 Days Stats</h5>
+        <div><strong>Weight (lbs):</strong> Min: @MinWeight, Max: @MaxWeight</div>
+        <div><strong>Waist Size (in):</strong> Min: @MinWaist, Max: @MaxWaist</div>
+    </div>
+}
+
+@if (ShowForm)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">@((IsEdit ? "Edit" : "Add New") + " Entry")</h5>
+            <EditForm Model="@CurrentEntry" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-3">
+                    <label for="pounds" class="form-label">Weight (lbs)</label>
+                    <InputNumber id="pounds" class="form-control" @bind-Value="CurrentEntry.Pounds" step="0.01" />
+                </div>
+                <div class="mb-3">
+                    <label for="waist" class="form-label">Waist Size (inches)</label>
+                    <InputNumber id="waist" class="form-control" @bind-Value="CurrentEntry.WaistSize" step="0.01" />
+                </div>
+                <div class="mb-3">
+                    <label for="date" class="form-label">Date</label>
+                    <InputDate id="date" class="form-control" @bind-Value="CurrentEntry.Date" />
+                </div>
+                @if (IsEdit)
+                {
+                    <div class="mb-3 form-check">
+                        <InputCheckbox class="form-check-input" id="deletedCheck" @bind-Value="CurrentEntry.IsDeleted" />
+                        <label class="form-check-label" for="deletedCheck">Is Deleted</label>
+                    </div>
+                }
+                <button type="submit" class="btn btn-primary">@(IsEdit ? "Update" : "Save")</button>
+                <button type="button" class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<button class="btn btn-success mb-3" @onclick="ShowAddForm">Add New Entry</button>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Weight (lbs)</th>
+            <th>Waist Size (cm)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var entry in SortedEntries)
+        {
+            <tr>
+                <td>@entry.Date.ToShortDateString()</td>
+                <td>@entry.Pounds</td>
+                <td>@entry.WaistSize</td>
+                <td>
+                    <button class="btn btn-sm btn-primary me-2" @onclick="() => StartEditEntry(entry)">Edit</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<JournalEntry> Entries { get; set; } = new();
+    private List<JournalEntry> SortedEntries => Entries.Where(x => !x.IsDeleted).OrderByDescending(x => x.Date).ToList();
+    private JournalEntry NewEntry { get; set; } = new() { Date = DateTime.Now };
+    private JournalEntry EditEntry { get; set; } = new();
+    private bool ShowForm { get; set; } = false;
+    private bool IsEdit { get; set; } = false;
+    private bool StatsSet { get; set; } = false;
+    private decimal MinWeight, MaxWeight, MinWaist, MaxWaist;
+
+    private JournalEntry CurrentEntry => IsEdit ? EditEntry : NewEntry;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEntries();
+        CalculateStats();
+    }
+
+    private async Task LoadEntries()
+    {
+        Entries = (await JournalEntryService.GetAllAsync()).ToList();
+        StateHasChanged();
+    }
+
+    private void ShowAddForm()
+    {
+        NewEntry = new JournalEntry { Date = DateTime.Now };
+        IsEdit = false;
+        ShowForm = true;
+    }
+
+    private void StartEditEntry(JournalEntry entry)
+    {
+        EditEntry = new JournalEntry
+        {
+            Id = entry.Id,
+            Pounds = entry.Pounds,
+            WaistSize = entry.WaistSize,
+            Date = entry.Date,
+            IsDeleted = entry.IsDeleted
+        };
+        IsEdit = true;
+        ShowForm = true;
+    }
+
+    private void CancelForm()
+    {
+        ShowForm = false;
+        NewEntry = new JournalEntry { Date = DateTime.Now };
+        EditEntry = new JournalEntry();
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (IsEdit)
+        {
+            await JournalEntryService.UpdateAsync(EditEntry);
+        }
+        else
+        {
+            await JournalEntryService.AddAsync(NewEntry);
+        }
+        ShowForm = false;
+        await LoadEntries();
+        CalculateStats();
+    }
+
+    private void CalculateStats()
+    {
+        var last30 = Entries.Where(x => x.Date >= DateTime.Now.AddDays(-30) && !x.IsDeleted).ToList();
+        if (last30.Any())
+        {
+            MinWeight = last30.Min(x => x.Pounds);
+            MaxWeight = last30.Max(x => x.Pounds);
+            MinWaist = last30.Min(x => x.WaistSize);
+            MaxWaist = last30.Max(x => x.WaistSize);
+            StatsSet = true;
+        }
+        else
+        {
+            MinWeight = MaxWeight = MinWaist = MaxWaist = 0;
+            StatsSet = false;
+        }
+    }
+}

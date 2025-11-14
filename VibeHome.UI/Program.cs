@@ -42,6 +42,7 @@ builder.Services.AddScoped<ICardioTypeService, CardioTypeService>();
 builder.Services.AddScoped<IWeightTrainingSessionService, WeightTrainingSessionService>();
 builder.Services.AddScoped<IWorkoutTypeService, WorkoutTypeService>();
 builder.Services.AddScoped<IWorkoutLocationService, WorkoutLocationService>();
+builder.Services.AddScoped<IJournalEntryService, VibeHome.Infrastructure.Services.JournalEntryService>();
 
 // Database and Repository
 builder.Services.AddDbContext<VibeHomeDbContext>(options =>
