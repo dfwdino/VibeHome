@@ -35,15 +35,21 @@
         <DataAnnotationsValidator />
         <ValidationSummary />
         <div class="mb-3">
-            <label class="form-label">Kid</label>
-            <InputSelect class="form-control" @bind-Value="completionModel.KidId">
-                <option value="">Select Kid</option>
-                @foreach (var kid in kids)
-                {
-                    <option value="@kid.KidId">@kid.Name</option>
-                }
-            </InputSelect>
-        </div>
+            <label class="form-label fw-bold">Kid:</label>
+<InputRadioGroup @bind-Value="completionModel.KidId">
+    @foreach (var kid in kids)
+    {
+        <InputRadio class="form-check-input" 
+                    Value="@kid.KidId" 
+                    id="@($"kid-{kid.KidId}")"
+                    />
+        <label class="form-check-label" for="@($"kid-{kid.KidId}")" style="padding-right:10px">
+            @kid.Name
+        </label>
+    }
+</InputRadioGroup>
+     
+</div>
         <div class="mb-3">
             <label class="form-label">Chore Item</label>
             <InputSelect class="form-control" @bind-Value="completionModel.ChoreItemId" @onchange="OnChoreChanged">
@@ -55,16 +61,26 @@
             </InputSelect>
         </div>
         <div class="mb-3">
-            <label class="form-label">Location</label>
-            <InputSelect class="form-control" @bind-Value="completionModel.LocationId">
-                <option value="">Select Location</option>
+            
+           <label class="form-label fw-bold">Location:</label>
+            <InputRadioGroup @bind-Value="completionModel.LocationId">
                 @foreach (var location in locations)
                 {
-                    <option value="@location.LocationId">@location.LocationName</option>
-                }
-            </InputSelect>
+                    <InputRadio class="form-check-input" 
+                                Value="@location.LocationId" 
+                                id="@($"location-{location.LocationId}")"
+                                />
+
+                    <label class="form-check-label" for="@($"location-{location.LocationId}")" style="padding-right:10px;padding-left:5px">
+                                    @location.LocationName
+                    </label>
+                 }
+</InputRadioGroup>
+
+
         </div>
         <button type="button" class="btn btn-link mb-2 p-0" @onclick="ToggleDetails">@(showDetails ? "Hide Details" : "Show Details")</button>
+        <br />
         <br />
         @if (showDetails)
         {
