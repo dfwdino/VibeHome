@@ -1,0 +1,455 @@
+{
+  "info": {
+    "name": "VibeHome API",
+    "description": "Collection for testing the VibeHome OData API with API Key authentication",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "test-api-key-12345",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Kids",
+      "item": [
+        {
+          "name": "Get All Kids",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/Kids",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "Kids"]
+            }
+          }
+        },
+        {
+          "name": "Get Kid by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/Kids(1)",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "Kids(1)"]
+            }
+          }
+        },
+        {
+          "name": "Filter Kids by Name",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/Kids?$filter=contains(Name, 'John')",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "Kids"],
+              "query": [
+                {
+                  "key": "$filter",
+                  "value": "contains(Name, 'John')"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Kid",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Kid\",\n  \"createdAt\": \"2025-11-18T00:00:00Z\",\n  \"modifiedAt\": \"2025-11-18T00:00:00Z\",\n  \"isDeleted\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/odata/Kids",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "Kids"]
+            }
+          }
+        },
+        {
+          "name": "Update Kid",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kidId\": 1,\n  \"name\": \"Updated Kid Name\",\n  \"createdAt\": \"2025-11-18T00:00:00Z\",\n  \"modifiedAt\": \"2025-11-18T12:00:00Z\",\n  \"isDeleted\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/odata/Kids(1)",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "Kids(1)"]
+            }
+          }
+        },
+        {
+          "name": "Delete Kid",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/Kids(1)",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "Kids(1)"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chore Items",
+      "item": [
+        {
+          "name": "Get All Chore Items",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/ChoreItems",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "ChoreItems"]
+            }
+          }
+        },
+        {
+          "name": "Get Chore Item by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/ChoreItems(1)",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "ChoreItems(1)"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chore Completions",
+      "item": [
+        {
+          "name": "Get All Chore Completions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/ChoreCompletions",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "ChoreCompletions"]
+            }
+          }
+        },
+        {
+          "name": "Get Chore Completions with Expand",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/ChoreCompletions?$top=10&$expand=Kid,ChoreItem&$orderby=CompletedAt desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "ChoreCompletions"],
+              "query": [
+                {
+                  "key": "$top",
+                  "value": "10"
+                },
+                {
+                  "key": "$expand",
+                  "value": "Kid,ChoreItem"
+                },
+                {
+                  "key": "$orderby",
+                  "value": "CompletedAt desc"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "API Keys",
+      "item": [
+        {
+          "name": "Get All API Keys",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/ApiKeys",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "ApiKeys"]
+            }
+          }
+        },
+        {
+          "name": "Generate New API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keyName\": \"My New API Key\",\n  \"description\": \"Test API key generated from Postman\",\n  \"expiresAt\": \"2026-12-31T23:59:59Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/odata/ApiKeys/Generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "ApiKeys", "Generate"]
+            }
+          }
+        },
+        {
+          "name": "Update API Key",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"apiKeyId\": 1,\n  \"keyName\": \"Updated Key Name\",\n  \"description\": \"Updated description\",\n  \"isActive\": true,\n  \"expiresAt\": \"2026-12-31T23:59:59Z\",\n  \"isDeleted\": false,\n  \"createdAt\": \"2025-11-18T00:00:00Z\",\n  \"modifiedAt\": \"2025-11-18T12:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/odata/ApiKeys(1)",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "ApiKeys(1)"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Workout",
+      "item": [
+        {
+          "name": "Get All Weight Training Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/WeightTrainingSessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "WeightTrainingSessions"]
+            }
+          }
+        },
+        {
+          "name": "Get All Cardio Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/CardioSessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "CardioSessions"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OData Queries",
+      "item": [
+        {
+          "name": "Count Kids",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/Kids/$count",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "Kids", "$count"]
+            }
+          }
+        },
+        {
+          "name": "Select Specific Fields",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/Kids?$select=KidId,Name",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "Kids"],
+              "query": [
+                {
+                  "key": "$select",
+                  "value": "KidId,Name"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Complex Query Example",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/odata/ChoreCompletions?$filter=not IsDeleted&$orderby=CompletedAt desc&$expand=Kid,ChoreItem&$top=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["odata", "ChoreCompletions"],
+              "query": [
+                {
+                  "key": "$filter",
+                  "value": "not IsDeleted"
+                },
+                {
+                  "key": "$orderby",
+                  "value": "CompletedAt desc"
+                },
+                {
+                  "key": "$expand",
+                  "value": "Kid,ChoreItem"
+                },
+                {
+                  "key": "$top",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

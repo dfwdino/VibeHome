@@ -16,6 +16,7 @@ namespace VibeHome.Infrastructure.Data
         public DbSet<User> Users { get; set; }
         public DbSet<WeeklyPaymentStatus> WeeklyPaymentStatuses { get; set; }
         public DbSet<JournalEntry> JournalEntries { get; set; }
+        public DbSet<ApiKey> ApiKeys { get; set; }
 
         // Workout Domain
         public DbSet<WeightTrainingSession> WeightTrainingSessions { get; set; }
@@ -44,6 +45,9 @@ namespace VibeHome.Infrastructure.Data
             
             modelBuilder.Entity<WeeklyPaymentStatus>().ToTable("WeeklyPaymentStatuses", "Kids");
             modelBuilder.Entity<WeeklyPaymentStatus>().HasKey(w => w.WeeklyPaymentStatusId);
+
+            modelBuilder.Entity<ApiKey>().ToTable("ApiKeys", "Kids");
+            modelBuilder.Entity<ApiKey>().HasKey(a => a.ApiKeyId);
 
             // Workout Domain Schema
             modelBuilder.Entity<CardioSession>().ToTable("CardioSessions", "Workout");
