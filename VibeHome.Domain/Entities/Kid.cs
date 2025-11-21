@@ -1,6 +1,6 @@
 namespace VibeHome.Domain.Entities
 {
-    public class Kid
+    public record Kid
     {
         public int KidId { get; set; }
         public string Name { get; set; } = string.Empty;
