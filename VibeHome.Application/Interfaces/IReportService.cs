@@ -10,7 +10,7 @@ namespace VibeHome.Application.Interfaces
         Task<IEnumerable<MonthlyEarningsReport>> GetMonthlyEarningsAsync();
     }
 
-    public class WeeklyEarningsReport
+    public record WeeklyEarningsReport
     {
         public int KidId { get; set; }
         public string KidName { get; set; } = string.Empty;
@@ -21,7 +21,7 @@ namespace VibeHome.Application.Interfaces
         public List<ChoreCompletion> Completions { get; set; } = new();
     }
 
-    public class MonthlyEarningsReport
+    public record MonthlyEarningsReport
     {
         public int KidId { get; set; }
         public string KidName { get; set; } = string.Empty;
