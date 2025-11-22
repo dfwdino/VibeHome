@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11217.181 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VibeHome.UI", "VibeHome.UI\VibeHome.UI.csproj", "{475F67F4-B559-4E73-908A-68856AAC1A62}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VibeHome.Infrastructure", "VibeHome.Infrastructure\VibeHome.Infrastructure.csproj", "{B674581C-D818-4A20-A0FA-7491E79CEE69}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VibeHome.API", "VibeHome.API\VibeHome.API.csproj", "{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "VibeHome.DBSchema", "VibeHome.DBSchema\VibeHome.DBSchema.sqlproj", "{FE273032-A1FF-4E47-A4AC-37E5152A17EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,8 +85,29 @@ Global
 		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D}.Release|x64.Build.0 = Release|Any CPU
 		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D}.Release|x86.ActiveCfg = Release|Any CPU
 		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D}.Release|x86.Build.0 = Release|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Debug|x64.Build.0 = Debug|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Debug|x86.Build.0 = Debug|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Release|x64.ActiveCfg = Release|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Release|x64.Build.0 = Release|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Release|x64.Deploy.0 = Release|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Release|x86.ActiveCfg = Release|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Release|x86.Build.0 = Release|Any CPU
+		{FE273032-A1FF-4E47-A4AC-37E5152A17EE}.Release|x86.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F9819433-9320-4860-9C55-F863BAB1D3A6}
 	EndGlobalSection
 EndGlobal
