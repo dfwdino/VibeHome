@@ -29,13 +29,14 @@
         OnFiltersChanged="OnFiltersChanged" />
 }
 
-
+<!--Kids-->
 <div class="collapse @(showForm ? "show" : "")" id="completionForm">
     <EditForm Model="UpdateModel" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         <ValidationSummary />
         <div class="mb-3">
             <label class="form-label fw-bold">Kid:</label>
+            <br />
 <InputRadioGroup @bind-Value="UpdateModel.KidId">
     @foreach (var kid in kids)
     {
@@ -50,7 +51,7 @@
 </InputRadioGroup>
 <ValidationMessage For="@(() => UpdateModel.KidId)" />
 </div>
-
+        <!--end Kids-->
 <!--Chores-->
       
         <div class="mb-3">
@@ -72,9 +73,12 @@
 
             
 <!-- End Chores  -->
+
+<!-- Location-->
   <div class="mb-3">
 
            <label class="form-label fw-bold">Location:</label>
+            <br />
             <InputRadioGroup @bind-Value="UpdateModel.LocationId">
                 @foreach (var location in locations)
                 {
@@ -88,7 +92,7 @@
                     </label>
                  }
 </InputRadioGroup>
-
+            <!-- End Location-->
 </div>
 
         <button type="button" class="btn btn-link mb-2 p-0" @onclick="ToggleDetails">@(showDetails ? "Hide Details" : "Show Details")</button>
