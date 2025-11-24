@@ -50,18 +50,30 @@
 </InputRadioGroup>
      
 </div>
+
+<!--Chores-->
+      
         <div class="mb-3">
-            <label class="form-label">Chore Item</label>
-            <InputSelect class="form-control" @bind-Value="completionModel.ChoreItemId" @onchange="OnChoreChanged">
-                <option value="">Select Chore</option>
-                @foreach (var chore in chores)
-                {
-                    <option value="@chore.ChoreItemId">@chore.ChoreName</option>
-                }
-            </InputSelect>
+            <label class="form-label fw-bold">Chores:</label>
+            <br/>
+            @foreach (var chore in chores)
+            {
+               
+                    <input type="checkbox"
+                           class="form-check-input"
+                           checked="@ChoreItemIds.Contains(chore.ChoreItemId)"
+                           @onchange="@(() => ToggleChore(chore.ChoreItemId))"
+                           id="@($"chore-{chore.ChoreItemId}")" />
+                <label class="form-check-label" for="@($"chore-{chore.ChoreItemId}")" style="padding-right:10px;padding-left:5px">
+                        @chore.ChoreName
+                    </label>
+             }
         </div>
-        <div class="mb-3">
+
             
+<!-- End Chores  -->
+  <div class="mb-3">
+
            <label class="form-label fw-bold">Location:</label>
             <InputRadioGroup @bind-Value="completionModel.LocationId">
                 @foreach (var location in locations)
@@ -77,8 +89,8 @@
                  }
 </InputRadioGroup>
 
+</div>
 
-        </div>
         <button type="button" class="btn btn-link mb-2 p-0" @onclick="ToggleDetails">@(showDetails ? "Hide Details" : "Show Details")</button>
         <br />
         <br />
@@ -159,6 +171,11 @@
 </div>
 
 @code {
+
+
+
+    public List<int> ChoreItemIds { get; set; } = new List<int>();
+
     private List<ChoreCompletion> allCompletions = new();
     private List<ChoreCompletion> filteredCompletions = new();
     private ChoreCompletion completionModel = new() { CompletionDateTime = DateTime.Now };
@@ -169,7 +186,20 @@
     private bool kidModelIsEdit => completionModel.ChoreCompletionId != 0;
     private bool showDetails = false;
     private bool showSearch = false;
+
     private SearchFilterComponent.SearchFilterCriteria currentFilters = new();
+
+    private void ToggleChore(int choreId)
+    {
+        if (ChoreItemIds.Contains(choreId))
+        {
+            ChoreItemIds.Remove(choreId);
+        }
+        else
+        {
+            ChoreItemIds.Add(choreId);
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {                               
@@ -183,6 +213,7 @@
             .OrderByDescending(c => c.CompletionDateTime)
             .ThenBy(c => c.ChoreCompletionId)
             .ToList();
+
         filteredCompletions = allCompletions;
         kids = (await KidService.GetAllAsync()).Where(k => !k.IsDeleted).ToList();
         chores = (await ChoreItemService.GetAllAsync()).Where(c => !c.IsDeleted).ToList();
@@ -200,16 +231,34 @@
     {
         try
         {
-            if (completionModel.ChoreCompletionId == 0)
+            ///Really should remove this out of the degin but for now...
+            foreach(var choreId in ChoreItemIds)
             {
-                await ChoreCompletionService.AddAsync(completionModel);
-                NotificationService.ShowSuccess("Chore completion added successfully!");
+                ChoreCompletion loopitem = new() { CompletionDateTime = DateTime.Now, 
+                                        KidId = completionModel.KidId, 
+                                        LocationId = completionModel.LocationId, 
+                                        ChoreItemId = choreId,
+                                        Notes = completionModel.Notes,
+                                        };
+
+                loopitem.Price = completionModel.Price == 0 ? 0 : completionModel.Price;
+               
+                
+               
+                if (loopitem.ChoreCompletionId == 0) //udpate not working. not sure if it did in the first place.
+                {
+                    await ChoreCompletionService.AddAsync(loopitem);
+                    NotificationService.ShowSuccess("Chore completion added successfully!");
+                }
+                else
+                {
+                    await ChoreCompletionService.UpdateAsync(loopitem);
+                    NotificationService.ShowSuccess("Chore completion updated successfully!");
+                }
             }
-            else
-            {
-                await ChoreCompletionService.UpdateAsync(completionModel);
-                NotificationService.ShowSuccess("Chore completion updated successfully!");
-            }
+
+
+            ChoreItemIds.Clear();
             await LoadData();
             ClearForm();
         }
@@ -332,4 +381,4 @@
 
         StateHasChanged();
     }
-} 
+}

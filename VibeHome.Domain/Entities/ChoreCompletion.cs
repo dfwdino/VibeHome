@@ -18,7 +18,9 @@ namespace VibeHome.Domain.Entities
         public KidsChoreLocation? Location { get; set; }
     }
 
-
+    /// <summary>
+    /// TODD: Might need to remove this class later
+    /// </summary>
     public class MultipleChoreCompletion
     {
         //public int ChoreCompletionId { get; set; }
