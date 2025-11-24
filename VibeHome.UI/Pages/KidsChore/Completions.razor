@@ -31,12 +31,12 @@
 
 
 <div class="collapse @(showForm ? "show" : "")" id="completionForm">
-    <EditForm Model="completionModel" OnValidSubmit="HandleValidSubmit">
+    <EditForm Model="UpdateModel" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         <ValidationSummary />
         <div class="mb-3">
             <label class="form-label fw-bold">Kid:</label>
-<InputRadioGroup @bind-Value="completionModel.KidId">
+<InputRadioGroup @bind-Value="UpdateModel.KidId">
     @foreach (var kid in kids)
     {
         <InputRadio class="form-check-input" 
@@ -48,22 +48,34 @@
         </label>
     }
 </InputRadioGroup>
-     
+<ValidationMessage For="@(() => UpdateModel.KidId)" />
 </div>
+
+<!--Chores-->
+      
         <div class="mb-3">
-            <label class="form-label">Chore Item</label>
-            <InputSelect class="form-control" @bind-Value="completionModel.ChoreItemId" @onchange="OnChoreChanged">
-                <option value="">Select Chore</option>
-                @foreach (var chore in chores)
-                {
-                    <option value="@chore.ChoreItemId">@chore.ChoreName</option>
-                }
-            </InputSelect>
+            <label class="form-label fw-bold">Chores:</label>
+            <br/>
+            @foreach (var chore in chores)
+            {
+               
+                    <input type="checkbox"
+                           class="form-check-input"
+                           checked="@ChoreItemIds.Contains(chore.ChoreItemId)"
+                           @onchange="@(() => ToggleChore(chore.ChoreItemId))"
+                           id="@($"chore-{chore.ChoreItemId}")" />
+                <label class="form-check-label" for="@($"chore-{chore.ChoreItemId}")" style="padding-right:10px;padding-left:5px">
+                        @chore.ChoreName
+                    </label>
+             }
         </div>
-        <div class="mb-3">
+
             
+<!-- End Chores  -->
+  <div class="mb-3">
+
            <label class="form-label fw-bold">Location:</label>
-            <InputRadioGroup @bind-Value="completionModel.LocationId">
+            <InputRadioGroup @bind-Value="UpdateModel.LocationId">
                 @foreach (var location in locations)
                 {
                     <InputRadio class="form-check-input" 
@@ -77,8 +89,8 @@
                  }
 </InputRadioGroup>
 
+</div>
 
-        </div>
         <button type="button" class="btn btn-link mb-2 p-0" @onclick="ToggleDetails">@(showDetails ? "Hide Details" : "Show Details")</button>
         <br />
         <br />
@@ -86,19 +98,19 @@
         {
             <div class="mb-3" style="margin-bottom: 0.75rem;">
                 <label class="form-label">Price</label>
-                <InputNumber class="form-control" @bind-Value="completionModel.Price" />
+                <InputNumber class="form-control" @bind-Value="UpdateModel.Price" />
             </div>
             <div class="mb-3" style="margin-bottom: 0.75rem;">
                 <label class="form-label">Completion Date/Time</label>
-                <InputDate class="form-control" @bind-Value="completionModel.CompletionDateTime" />
+                <InputDate class="form-control" @bind-Value="UpdateModel.CompletionDateTime" />
             </div>
             <div class="mb-3" style="margin-bottom: 0.75rem;">
                 <label class="form-label">Notes</label>
-                <InputText class="form-control" @bind-Value="completionModel.Notes" />
+                <InputText class="form-control" @bind-Value="UpdateModel.Notes" />
             </div>
         }
-        <button type="submit" class="btn btn-success">@(completionModel.ChoreCompletionId == 0 ? "Add Completion" : "Update Completion")</button>
-        @if (completionModel.ChoreCompletionId != 0)
+        <button type="submit" class="btn btn-success">@(UpdateModel.ChoreCompletionId == 0 ? "Add Completion" : "Update Completion")</button>
+        @if (UpdateModel.ChoreCompletionId != 0)
         {
             <button type="button" class="btn btn-secondary ms-1" @onclick="ClearForm">Cancel</button>
         }
@@ -159,17 +171,35 @@
 </div>
 
 @code {
+
+
+
+    public List<int> ChoreItemIds { get; set; } = new List<int>();
+
     private List<ChoreCompletion> allCompletions = new();
     private List<ChoreCompletion> filteredCompletions = new();
-    private ChoreCompletion completionModel = new() { CompletionDateTime = DateTime.Now };
+    private ChoreCompletion UpdateModel = new() { CompletionDateTime = DateTime.Now };
     private List<Kid> kids = new();
     private List<ChoreItem> chores = new();
     private List<KidsChoreLocation> locations = new();
     private bool showForm = false;
-    private bool kidModelIsEdit => completionModel.ChoreCompletionId != 0;
+    private bool kidModelIsEdit => UpdateModel.ChoreCompletionId != 0;
     private bool showDetails = false;
     private bool showSearch = false;
+
     private SearchFilterComponent.SearchFilterCriteria currentFilters = new();
+
+    private void ToggleChore(int choreId)
+    {
+        if (ChoreItemIds.Contains(choreId))
+        {
+            ChoreItemIds.Remove(choreId);
+        }
+        else
+        {
+            ChoreItemIds.Add(choreId);
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {                               
@@ -183,16 +213,17 @@
             .OrderByDescending(c => c.CompletionDateTime)
             .ThenBy(c => c.ChoreCompletionId)
             .ToList();
+
         filteredCompletions = allCompletions;
         kids = (await KidService.GetAllAsync()).Where(k => !k.IsDeleted).ToList();
         chores = (await ChoreItemService.GetAllAsync()).Where(c => !c.IsDeleted).ToList();
         locations = (await LocationService.GetAllAsync()).Where(l => !l.IsDeleted).ToList();
         // Set default location if not editing
-        if (completionModel.ChoreCompletionId == 0)
+        if (UpdateModel.ChoreCompletionId == 0)
         {
             var defaultLoc = locations.FirstOrDefault(l => l.LocationName.Equals("Daddy's Home", StringComparison.OrdinalIgnoreCase));
             if (defaultLoc != null)
-                completionModel.LocationId = defaultLoc.LocationId;
+                UpdateModel.LocationId = defaultLoc.LocationId;
         }
     }
 
@@ -200,16 +231,33 @@
     {
         try
         {
-            if (completionModel.ChoreCompletionId == 0)
+            foreach(var choreId in ChoreItemIds)
             {
-                await ChoreCompletionService.AddAsync(completionModel);
-                NotificationService.ShowSuccess("Chore completion added successfully!");
+                if (UpdateModel.ChoreCompletionId == 0 || ChoreItemIds.Count > 1)
+                {
+                    ChoreCompletion loopitem = new()
+                    {
+                        CompletionDateTime = DateTime.Now,
+                        KidId = UpdateModel.KidId,
+                        LocationId = UpdateModel.LocationId,
+                        ChoreItemId = choreId,
+                        Notes = UpdateModel.Notes,
+                    };
+
+                    loopitem.Price = UpdateModel.Price == 0 ? 0 : UpdateModel.Price;
+
+                    await ChoreCompletionService.AddAsync(loopitem);
+                    NotificationService.ShowSuccess("Chore completion added successfully!");
+                }
+                else
+                {
+                    await ChoreCompletionService.UpdateAsync(UpdateModel);
+                    NotificationService.ShowSuccess("Chore completion updated successfully!");
+                }
             }
-            else
-            {
-                await ChoreCompletionService.UpdateAsync(completionModel);
-                NotificationService.ShowSuccess("Chore completion updated successfully!");
-            }
+
+
+
             await LoadData();
             ClearForm();
         }
@@ -221,15 +269,17 @@
 
     private void EditCompletion(ChoreCompletion completion)
     {
-        completionModel = new ChoreCompletion
+        UpdateModel = new ChoreCompletion
         {
             ChoreCompletionId = completion.ChoreCompletionId,
             KidId = completion.KidId,
-            ChoreItemId = completion.ChoreItemId,
+            //ChoreItemId = completion.ChoreItemId,
             LocationId = completion.LocationId,
             CompletionDateTime = completion.CompletionDateTime,
             Notes = completion.Notes
         };
+        ChoreItemIds.Clear();
+        ChoreItemIds.Add(completion.ChoreItemId);
         showForm = true;
     }
 
@@ -249,12 +299,13 @@
 
     private void ClearForm()
     {
-        completionModel = new ChoreCompletion { CompletionDateTime = DateTime.Now };
+        UpdateModel = new ChoreCompletion { CompletionDateTime = DateTime.Now };
         // Set default location
         var defaultLoc = locations.FirstOrDefault(l => l.LocationName.Equals("Daddy's Home", StringComparison.OrdinalIgnoreCase));
         if (defaultLoc != null)
-            completionModel.LocationId = defaultLoc.LocationId;
+            UpdateModel.LocationId = defaultLoc.LocationId;
         showForm = false;
+        ChoreItemIds.Clear();
     }
 
     private void ToggleForm()
@@ -267,9 +318,9 @@
         if (int.TryParse(e.Value?.ToString(), out int choreId))
         {
             var selectedChore = chores.FirstOrDefault(c => c.ChoreItemId == choreId);
-            if (selectedChore != null && completionModel.ChoreCompletionId == 0)
+            if (selectedChore != null && UpdateModel.ChoreCompletionId == 0)
             {
-                completionModel.Price = selectedChore.Price;
+                UpdateModel.Price = selectedChore.Price;
             }
         }
     }
@@ -332,4 +383,4 @@
 
         StateHasChanged();
     }
-} 
+}
