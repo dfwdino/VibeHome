@@ -28,19 +28,19 @@ namespace VibeHome.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // KidsChore Domain Schema
-            modelBuilder.Entity<Kid>().ToTable("Kids", "Kids");
+            modelBuilder.Entity<Kid>().ToTable("Kids", "Kids", t => t.HasTrigger("trg_Kids_ModifiedAt"));
             modelBuilder.Entity<Kid>().HasKey(k => k.KidId);
-            
-            modelBuilder.Entity<KidsChoreLocation>().ToTable("Locations", "Kids");
+
+            modelBuilder.Entity<KidsChoreLocation>().ToTable("Locations", "Kids", t => t.HasTrigger("trg_Locations_ModifiedAt"));
             modelBuilder.Entity<KidsChoreLocation>().HasKey(l => l.LocationId);
-            
+
             modelBuilder.Entity<ChoreItem>().ToTable("ChoreItems", "Kids");
             modelBuilder.Entity<ChoreItem>().HasKey(c => c.ChoreItemId);
-            
+
             modelBuilder.Entity<ChoreCompletion>().ToTable("ChoreCompletions", "Kids");
             modelBuilder.Entity<ChoreCompletion>().HasKey(c => c.ChoreCompletionId);
-            
-            modelBuilder.Entity<User>().ToTable("Users", "Kids");
+
+            modelBuilder.Entity<User>().ToTable("Users", "Kids", t => t.HasTrigger("trg_Users_ModifiedAt"));
             modelBuilder.Entity<User>().HasKey(u => u.UserId);
             
             modelBuilder.Entity<WeeklyPaymentStatus>().ToTable("WeeklyPaymentStatuses", "Kids");
