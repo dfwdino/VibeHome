@@ -19,10 +19,13 @@
             <InputText class="form-control" @bind-Value="userModel.Username" />
         </div>
         <div class="mb-3">
+            <label class="form-label">Password</label>
+            <InputText class="form-control" @bind-Value="userModel.PasswordHash" />
+        </div>
+        <div class="mb-3">
             <label class="form-label">Role</label>
             <InputSelect class="form-select" @bind-Value="userModel.Role">
                 <option value="">Select Role</option>
-                <option value="parent">parent</option>
                 <option value="parent">parent</option>
                 <option value="Child">Child</option>
             </InputSelect>
@@ -108,6 +111,7 @@
         {
             UserId = user.UserId,
             Username = user.Username,
+            PasswordHash = user.PasswordHash,
             Role = user.Role
         };
         showForm = true;

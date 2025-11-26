@@ -23,10 +23,9 @@
 
 @if (showSearch)
 {
-    <SearchFilterComponent 
-        TotalCount="@allCompletions.Count" 
-        FilteredCount="@filteredCompletions.Count" 
-        OnFiltersChanged="OnFiltersChanged" />
+    <SearchFilterComponent TotalCount="@allCompletions.Count"
+                           FilteredCount="@filteredCompletions.Count"
+                           OnFiltersChanged="OnFiltersChanged" />
 }
 
 <!--Kids-->
@@ -37,63 +36,60 @@
         <div class="mb-3">
             <label class="form-label fw-bold">Kid:</label>
             <br />
-<InputRadioGroup @bind-Value="UpdateModel.KidId">
-    @foreach (var kid in kids)
-    {
-        <InputRadio class="form-check-input" 
-                    Value="@kid.KidId" 
-                    id="@($"kid-{kid.KidId}")"
-                    />
-        <label class="form-check-label" for="@($"kid-{kid.KidId}")" style="padding-right:10px">
-            @kid.Name
-        </label>
-    }
-</InputRadioGroup>
-<ValidationMessage For="@(() => UpdateModel.KidId)" />
-</div>
+            <InputRadioGroup @bind-Value="UpdateModel.KidId">
+                @foreach (var kid in kids)
+                {
+                    <InputRadio class="form-check-input"
+                                Value="@kid.KidId"
+                                id="@($"kid-{kid.KidId}")" />
+                    <label class="form-check-label" for="@($"kid-{kid.KidId}")" style="padding-right:10px">
+                        @kid.Name
+                    </label>
+                }
+            </InputRadioGroup>
+            <ValidationMessage For="@(() => UpdateModel.KidId)" />
+        </div>
         <!--end Kids-->
-<!--Chores-->
-      
+        <!--Chores-->
+
         <div class="mb-3">
             <label class="form-label fw-bold">Chores:</label>
-            <br/>
+            <br />
             @foreach (var chore in chores)
             {
-               
-                    <input type="checkbox"
-                           class="form-check-input"
-                           checked="@ChoreItemIds.Contains(chore.ChoreItemId)"
-                           @onchange="@(() => ToggleChore(chore.ChoreItemId))"
-                           id="@($"chore-{chore.ChoreItemId}")" />
+
+                <input type="checkbox"
+                       class="form-check-input"
+                       checked="@ChoreItemIds.Contains(chore.ChoreItemId)"
+                       @onchange="@(() => ToggleChore(chore.ChoreItemId))"
+                       id="@($"chore-{chore.ChoreItemId}")" />
                 <label class="form-check-label" for="@($"chore-{chore.ChoreItemId}")" style="padding-right:10px;padding-left:5px">
-                        @chore.ChoreName
-                    </label>
-             }
+                    @chore.ChoreName
+                </label>
+            }
         </div>
 
-            
-<!-- End Chores  -->
 
-<!-- Location-->
-  <div class="mb-3">
+        <!-- End Chores  -->
+        <!-- Location-->
+        <div class="mb-3">
 
-           <label class="form-label fw-bold">Location:</label>
+            <label class="form-label fw-bold">Location:</label>
             <br />
             <InputRadioGroup @bind-Value="UpdateModel.LocationId">
                 @foreach (var location in locations)
                 {
-                    <InputRadio class="form-check-input" 
-                                Value="@location.LocationId" 
-                                id="@($"location-{location.LocationId}")"
-                                />
+                    <InputRadio class="form-check-input"
+                                Value="@location.LocationId"
+                                id="@($"location-{location.LocationId}")" />
 
                     <label class="form-check-label" for="@($"location-{location.LocationId}")" style="padding-right:10px;padding-left:5px">
-                                    @location.LocationName
+                        @location.LocationName
                     </label>
-                 }
-</InputRadioGroup>
+                }
+            </InputRadioGroup>
             <!-- End Location-->
-</div>
+        </div>
 
         <button type="button" class="btn btn-link mb-2 p-0" @onclick="ToggleDetails">@(showDetails ? "Hide Details" : "Show Details")</button>
         <br />
@@ -127,7 +123,7 @@
             <tr>
                 <th class="custom-table-header">Kid</th>
                 <th class="custom-table-header">Chore</th>
-              @*   <th class="custom-table-header">Location</th> *@
+                @*   <th class="custom-table-header">Location</th> *@
                 <th class="custom-table-header">Date</th>
                 <th class="custom-table-header">Actions</th>
             </tr>
@@ -137,11 +133,14 @@
             {
                 <tr>
                     <td>@kids.FirstOrDefault(k => k.KidId == completion.KidId)?.Name</td>
-                    <td>@chores.FirstOrDefault(c => c.ChoreItemId == completion.ChoreItemId)?.ChoreName 
-                        @if(!string.IsNullOrWhiteSpace(completion.Notes)){
-                        <span style="font-style:italic"> - @completion.Notes</span>}
+                    <td>
+                        @chores.FirstOrDefault(c => c.ChoreItemId == completion.ChoreItemId)?.ChoreName
+                        @if (!string.IsNullOrWhiteSpace(completion.Notes))
+                        {
+                            <span style="font-style:italic"> - @completion.Notes</span>
+                        }
                     </td>
-      @*               <td>@locations.FirstOrDefault(l => l.LocationId == completion.LocationId)?.LocationName</td> *@
+                    @*               <td>@locations.FirstOrDefault(l => l.LocationId == completion.LocationId)?.LocationName</td> *@
                     <td>@completion.CompletionDateTime.ToShortDateString()</td>
                     <td>
                         <button class="btn btn-sm btn-info me-1" @onclick="() => EditCompletion(completion)">Edit</button>
@@ -206,7 +205,7 @@
     }
 
     protected override async Task OnInitializedAsync()
-    {                               
+    {
         await LoadData();
     }
 
@@ -235,7 +234,7 @@
     {
         try
         {
-            foreach(var choreId in ChoreItemIds)
+            foreach (var choreId in ChoreItemIds)
             {
                 if (UpdateModel.ChoreCompletionId == 0 || ChoreItemIds.Count > 1)
                 {

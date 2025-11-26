@@ -29,6 +29,7 @@ namespace VibeHome.Infrastructure.Data
         {
             // KidsChore Domain Schema
             modelBuilder.Entity<Kid>().ToTable("Kids", "Kids");
+            modelBuilder.Entity<Kid>().ToTable("Kids", "Kids", t => t.HasTrigger("trg_Kids_ModifiedAt"));
             modelBuilder.Entity<Kid>().HasKey(k => k.KidId);
             
             modelBuilder.Entity<KidsChoreLocation>().ToTable("Locations", "Kids");
@@ -41,6 +42,7 @@ namespace VibeHome.Infrastructure.Data
             modelBuilder.Entity<ChoreCompletion>().HasKey(c => c.ChoreCompletionId);
             
             modelBuilder.Entity<User>().ToTable("Users", "Kids");
+            modelBuilder.Entity<User>().ToTable("Users", "Kids", t => t.HasTrigger("trg_Users_ModifiedAt"));
             modelBuilder.Entity<User>().HasKey(u => u.UserId);
             
             modelBuilder.Entity<WeeklyPaymentStatus>().ToTable("WeeklyPaymentStatuses", "Kids");
