@@ -30,7 +30,7 @@ builder.Services.AddSingleton<VibeHome.UI.Shared.NotificationService>();
 builder.Services.AddScoped<AuthenticationStateProvider, VibeHome.UI.CustomAuthenticationStateProvider>();
 
 // Configure HttpClient for API calls
-var apiBaseUrl = builder.Configuration["VibeHomeApi:BaseUrl"] ?? "http://localhost:5000/";
+var apiBaseUrl = builder.Configuration["VibeHomeApi:BaseUrl"] ?? "";
 var apiKey = builder.Configuration["VibeHomeApi:ApiKey"] ?? "TestAPI";
 
 builder.Services.AddHttpClient("VibeHomeApi", client =>
