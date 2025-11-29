@@ -16,9 +16,13 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task<WeeklyPaymentStatus?> GetByKidAndWeekAsync(int kidId, DateTime weekStartDate)
         {
+            // OData v4 requires dates in ISO 8601 format without quotes
             var dateString = weekStartDate.ToString("yyyy-MM-dd");
-            var response = await _httpClient.GetFromJsonAsync<ODataResponse<WeeklyPaymentStatus>>(
-                $"{_endpoint}?$filter=KidId eq {kidId} and WeekStartDate eq {dateString}");
+            var url = $"{_endpoint}?$filter=KidId eq {kidId} and WeekStartDate eq {dateString}";
+
+            Console.WriteLine($"[DEBUG] Full URL with filter: {url}");
+
+            var response = await _httpClient.GetFromJsonAsync<ODataResponse<WeeklyPaymentStatus>>(url);
             return response?.Value?.FirstOrDefault();
         }
 
@@ -61,6 +65,42 @@ namespace VibeHome.Infrastructure.HttpServices
         {
             var status = await GetByKidAndWeekAsync(kidId, weekStartDate);
             return status?.IsPaid ?? false;
+        }
+
+        public async Task<IEnumerable<WeeklyPaymentStatus>> GetAllAsync()
+        {
+            var response = await _httpClient.GetFromJsonAsync<ODataResponse<WeeklyPaymentStatus>>(_endpoint);
+            return response?.Value ?? Enumerable.Empty<WeeklyPaymentStatus>();
+        }
+
+        public async Task<WeeklyPaymentStatus?> GetByIdAsync(int id)
+        {
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<WeeklyPaymentStatus>($"{_endpoint}({id})");
+            }
+            catch (HttpRequestException)
+            {
+                return null;
+            }
+        }
+
+        public async Task AddAsync(WeeklyPaymentStatus entity)
+        {
+            var response = await _httpClient.PostAsJsonAsync(_endpoint, entity);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task UpdateAsync(WeeklyPaymentStatus entity)
+        {
+            var response = await _httpClient.PutAsJsonAsync($"{_endpoint}({entity.WeeklyPaymentStatusId})", entity);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var response = await _httpClient.DeleteAsync($"{_endpoint}({id})");
+            response.EnsureSuccessStatusCode();
         }
 
         private class ODataResponse<T>

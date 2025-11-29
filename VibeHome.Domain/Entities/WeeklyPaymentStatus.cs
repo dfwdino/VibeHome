@@ -10,5 +10,6 @@ namespace VibeHome.Domain.Entities
         public bool IsPaid { get; set; }
 
         public Kid? Kid { get; set; } // Navigation property
+
     }
 } 

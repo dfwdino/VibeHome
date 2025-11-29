@@ -14,6 +14,40 @@ namespace VibeHome.Infrastructure.Services
             _context = context;
         }
 
+        // Standard CRUD methods
+        public async Task<IEnumerable<WeeklyPaymentStatus>> GetAllAsync()
+        {
+            return await _context.WeeklyPaymentStatuses.ToListAsync();
+        }
+
+        public async Task<WeeklyPaymentStatus?> GetByIdAsync(int id)
+        {
+            return await _context.WeeklyPaymentStatuses.FindAsync(id);
+        }
+
+        public async Task AddAsync(WeeklyPaymentStatus entity)
+        {
+            _context.WeeklyPaymentStatuses.Add(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(WeeklyPaymentStatus entity)
+        {
+            _context.WeeklyPaymentStatuses.Update(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var entity = await GetByIdAsync(id);
+            if (entity != null)
+            {
+                _context.WeeklyPaymentStatuses.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        // Custom methods
         public async Task<WeeklyPaymentStatus?> GetByKidAndWeekAsync(int kidId, DateTime weekStartDate)
         {
             return await _context.WeeklyPaymentStatuses

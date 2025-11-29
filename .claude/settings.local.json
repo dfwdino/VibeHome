@@ -1,8 +1,18 @@
 {
   "permissions": {
     "allow": [
+      "Bash(dir \"C:\\inetpub\\wwwroot\\VibeHome\\API\")",
+      "Bash(powershell -Command \"Get-WebApplication | Where-Object { $_Path -like ''*/API'' } | Format-List\")",
+      "Bash(dir \"C:\\inetpub\\wwwroot\\VibeHome\\API\\logs\")",
+      "Bash(powershell -Command:*)",
+      "Bash(dir \"C:\\inetpub\\wwwroot\\VibeHome\")",
+      "Bash(findstr:*)",
       "Bash(dotnet build:*)",
-      "Bash(dotnet clean:*)"
+      "Bash(dotnet publish:*)",
+      "Bash(dir \"C:\\Users\\Shane\\.claude-worktrees\\VibeHome\\tender-blackburn\\VibeHome.Infrastructure\\HttpServices\")",
+      "Bash(dotnet clean:*)",
+      "Bash(dir:*)",
+      "Bash(del ReportsController.cs)"
     ],
     "deny": [],
     "ask": []

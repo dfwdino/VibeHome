@@ -1,10 +1,6 @@
 using VibeHome.Application.Interfaces;
-using VibeHome.Infrastructure.Data;
-using VibeHome.Infrastructure.Repositories;
-using VibeHome.Infrastructure.Services;
 using VibeHome.Infrastructure.HttpServices;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.EntityFrameworkCore;
 using VibeHome.UI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -126,12 +122,13 @@ builder.Services.AddScoped<IJournalEntryService>(sp =>
     return new JournalEntryHttpService(httpClient);
 });
 
-// ReportService still uses direct DB access for complex queries
-// Database and Repository (only for ReportService)
-builder.Services.AddDbContext<VibeHomeDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("VibeHomeConnection")));
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IReportService, ReportService>();
+// ReportService HTTP Service (calling API)
+builder.Services.AddScoped<IReportService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new ReportHttpService(httpClient);
+});
 
 var app = builder.Build();
 

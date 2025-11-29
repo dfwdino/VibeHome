@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using System.Net.Mime;
 using VibeHome.Application.Interfaces;
 using VibeHome.Domain.Entities;
 
 namespace VibeHome.API.Controllers
 {
+
     public class ChoreCompletionsController : ODataController
     {
         private readonly IChoreCompletionService _choreCompletionService;
@@ -33,6 +35,7 @@ namespace VibeHome.API.Controllers
             return Ok(choreCompletion);
         }
 
+        [HttpPost]
         public async Task<IActionResult> Post([FromBody] ChoreCompletion choreCompletion)
         {
             if (!ModelState.IsValid)

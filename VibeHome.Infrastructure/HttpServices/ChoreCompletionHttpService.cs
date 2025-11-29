@@ -34,7 +34,7 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task AddAsync(ChoreCompletion choreCompletion)
         {
-            var response = await _httpClient.PostAsJsonAsync(_endpoint, choreCompletion);
+            var response = await _httpClient.PostAsJsonAsync<ChoreCompletion>(_endpoint, choreCompletion);
             response.EnsureSuccessStatusCode();
         }
 

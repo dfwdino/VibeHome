@@ -34,7 +34,7 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task<User?> GetByUsernameAsync(string username)
         {
-            var response = await _httpClient.GetFromJsonAsync<ODataResponse<User>>($"{_endpoint}?$filter=Username eq '{username}'");
+            var response = await _httpClient.GetFromJsonAsync<ODataResponse<User>>($"{_endpoint}?$filter=Username eq '{username.ToLower()}'");
             return response?.Value?.FirstOrDefault();
         }
 
