@@ -57,7 +57,7 @@
             <br />
             @foreach (var chore in chores)
             {
-
+                  <span style="white-space: nowrap; padding-right: 10px;">
                 <input type="checkbox"
                        class="form-check-input"
                        checked="@ChoreItemIds.Contains(chore.ChoreItemId)"
@@ -66,6 +66,7 @@
                 <label class="form-check-label" for="@($"chore-{chore.ChoreItemId}")" style="padding-right:10px;padding-left:5px">
                     @chore.ChoreName
                 </label>
+                </span>
             }
         </div>
 
@@ -245,6 +246,8 @@
                         LocationId = UpdateModel.LocationId,
                         ChoreItemId = choreId,
                         Notes = UpdateModel.Notes,
+                        CreatedAt = DateTime.Now,
+                        ModifiedAt = DateTime.Now
                     };
 
                     loopitem.Price = UpdateModel.Price == 0 ? 0 : UpdateModel.Price;

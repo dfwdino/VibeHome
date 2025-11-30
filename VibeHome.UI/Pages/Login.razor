@@ -48,7 +48,7 @@
 
     private async Task HandleLogin()
     {
-        var user = await UserService.AuthenticateAsync(loginModel.Username, loginModel.Password);
+        var user = await UserService.AuthenticateAsync(loginModel.Username.ToLower(), loginModel.Password);
         if (user != null)
         {
             AuthState.CurrentUser = user;

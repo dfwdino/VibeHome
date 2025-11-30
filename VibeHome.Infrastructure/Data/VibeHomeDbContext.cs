@@ -72,5 +72,29 @@ namespace VibeHome.Infrastructure.Data
 
             base.OnModelCreating(modelBuilder);
         }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+
+            foreach (var entry in entries)
+            {
+                var createdAtProp = entry.Entity.GetType().GetProperty("CreatedAt");
+                var modifiedAtProp = entry.Entity.GetType().GetProperty("ModifiedAt");
+
+                if (entry.State == EntityState.Added && createdAtProp != null)
+                {
+                    createdAtProp.SetValue(entry.Entity, DateTime.Now);
+                }
+
+                if (modifiedAtProp != null)
+                {
+                    modifiedAtProp.SetValue(entry.Entity, DateTime.Now);
+                }
+            }
+
+            return base.SaveChangesAsync(cancellationToken);
+        }
     }
 } 

@@ -1,9 +1,6 @@
 using VibeHome.Application.Interfaces;
-using VibeHome.Infrastructure.Data;
-using VibeHome.Infrastructure.Repositories;
-using VibeHome.Infrastructure.Services;
+using VibeHome.Infrastructure.HttpServices;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.EntityFrameworkCore;
 using VibeHome.UI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,27 +24,111 @@ builder.Services.AddSignalR(options =>
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<VibeHome.UI.Shared.NotificationService>();
 builder.Services.AddScoped<AuthenticationStateProvider, VibeHome.UI.CustomAuthenticationStateProvider>();
-// KidsChore Services
-builder.Services.AddScoped<IChoreItemService, ChoreItemService>();
-builder.Services.AddScoped<IChoreCompletionService, ChoreCompletionService>();
-builder.Services.AddScoped<IKidService, KidService>();
-builder.Services.AddScoped<IKidsChoreLocationService, KidsChoreLocationService>();
-builder.Services.AddScoped<IReportService, ReportService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IWeeklyPaymentStatusService, WeeklyPaymentStatusService>();
 
-// Workout Services
-builder.Services.AddScoped<ICardioSessionService, CardioSessionService>();
-builder.Services.AddScoped<ICardioTypeService, CardioTypeService>();
-builder.Services.AddScoped<IWeightTrainingSessionService, WeightTrainingSessionService>();
-builder.Services.AddScoped<IWorkoutTypeService, WorkoutTypeService>();
-builder.Services.AddScoped<IWorkoutLocationService, WorkoutLocationService>();
-builder.Services.AddScoped<IJournalEntryService, VibeHome.Infrastructure.Services.JournalEntryService>();
+// Configure HttpClient for API calls
+var apiBaseUrl = builder.Configuration["VibeHomeApi:BaseUrl"] ?? "";
+var apiKey = builder.Configuration["VibeHomeApi:ApiKey"] ?? "TestAPI";
 
-// Database and Repository
-builder.Services.AddDbContext<VibeHomeDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("VibeHomeConnection")));
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddHttpClient("VibeHomeApi", client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+    client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+// KidsChore HTTP Services (calling API)
+builder.Services.AddScoped<IChoreItemService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new ChoreItemHttpService(httpClient);
+});
+
+builder.Services.AddScoped<IChoreCompletionService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new ChoreCompletionHttpService(httpClient);
+});
+
+builder.Services.AddScoped<IKidService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new KidHttpService(httpClient);
+});
+
+builder.Services.AddScoped<IKidsChoreLocationService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new KidsChoreLocationHttpService(httpClient);
+});
+
+builder.Services.AddScoped<IUserService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new UserHttpService(httpClient);
+});
+
+builder.Services.AddScoped<IWeeklyPaymentStatusService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new WeeklyPaymentStatusHttpService(httpClient);
+});
+
+// Workout HTTP Services (calling API)
+builder.Services.AddScoped<ICardioSessionService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new CardioSessionHttpService(httpClient);
+});
+
+builder.Services.AddScoped<ICardioTypeService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new CardioTypeHttpService(httpClient);
+});
+
+builder.Services.AddScoped<IWeightTrainingSessionService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new WeightTrainingSessionHttpService(httpClient);
+});
+
+builder.Services.AddScoped<IWorkoutTypeService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new WorkoutTypeHttpService(httpClient);
+});
+
+builder.Services.AddScoped<IWorkoutLocationService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new WorkoutLocationHttpService(httpClient);
+});
+
+builder.Services.AddScoped<IJournalEntryService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new JournalEntryHttpService(httpClient);
+});
+
+// ReportService HTTP Service (calling API)
+builder.Services.AddScoped<IReportService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("VibeHomeApi");
+    return new ReportHttpService(httpClient);
+});
 
 var app = builder.Build();
 

@@ -16,6 +16,7 @@ namespace VibeHome.Domain.Entities
         public DateTime CompletionDateTime { get; set; }
         public string? Notes { get; set; }
         public bool IsDeleted { get; set; }
+    
         public DateTime CreatedAt { get; set; }
         public DateTime ModifiedAt { get; set; }
         public decimal Price { get; set; }
