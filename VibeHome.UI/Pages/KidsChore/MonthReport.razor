@@ -5,7 +5,15 @@
 
 <h3>Monthly Report by Kid</h3>
 
-@if (reports.Count == 0)
+@if(isLoading)
+{
+<div class="text-center">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+}
+else if (reports.Count == 0)
 {
     <div class="alert alert-info">No report data available yet.</div>
 }
@@ -51,9 +59,11 @@ else
 
 @code {
     private List<MonthlyEarningsReport> reports = new();
+    bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
         reports = (await ReportService.GetMonthlyEarningsAsync()).ToList();
+        isLoading = false;
     }
 }

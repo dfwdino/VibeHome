@@ -7,7 +7,15 @@
 
 <h3 style="text-align:center">Chores Done - @DateTime.Now.ToString("MM/dd")</h3>
 
-@if (reports.Count == 0)
+@if(isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (reports.Count == 0 && isLoading == false)
 {
     <div class="alert alert-info">No report data available yet.</div>
 }
@@ -116,6 +124,7 @@ else
     private List<WeeklyEarningsReport> reports = new();
     private Dictionary<(int KidId, DateTime WeekStart), bool> paymentStatuses = new();
     private bool isparent = false;
+    private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -123,6 +132,7 @@ else
         isparent = authState.User.IsInRole("parent");
         reports = (await ReportService.GetWeeklyEarningsAsync()).ToList();
         await LoadPaymentStatuses();
+        isLoading = false;
     }
 
     private async Task MarkAsPaid(int kidId, DateTime weekStart)
