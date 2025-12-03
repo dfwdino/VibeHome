@@ -41,6 +41,10 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task UpdateAsync(ChoreItem choreItem)
         {
+            //Need to fix this
+            choreItem.ModifiedAt = DateTime.UtcNow;
+            choreItem.CreatedAt = DateTime.UtcNow;
+
             var response = await _httpClient.PutAsJsonAsync($"{_endpoint}({choreItem.ChoreItemId})", choreItem);
             response.EnsureSuccessStatusCode();
         }

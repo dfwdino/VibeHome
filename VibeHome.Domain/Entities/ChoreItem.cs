@@ -7,7 +7,7 @@ namespace VibeHome.Domain.Entities
         public decimal Price { get; set; }
         public string? Description { get; set; }
         public bool IsDeleted { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime ModifiedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
     }
 } 
