@@ -33,10 +33,14 @@ namespace VibeHome.API.Controllers
             return Ok(paymentStatus);
         }
 
+     
         public async Task<IActionResult> Post([FromBody] WeeklyPaymentStatus paymentStatus)
         {
             if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                Console.WriteLine($"[DEBUG POST] ModelState errors: {string.Join(", ", errors.Select(e => e.ErrorMessage))}");
+
                 return BadRequest(ModelState);
             }
 

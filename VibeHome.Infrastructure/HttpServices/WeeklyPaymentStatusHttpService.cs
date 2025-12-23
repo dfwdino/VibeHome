@@ -1,3 +1,4 @@
+using Microsoft.VisualBasic;
 using System.Net.Http.Json;
 using VibeHome.Application.Interfaces;
 using VibeHome.Domain.Entities;
@@ -41,9 +42,11 @@ namespace VibeHome.Infrastructure.HttpServices
                 var newStatus = new WeeklyPaymentStatus
                 {
                     KidId = kidId,
-                    WeekStartDate = weekStartDate,
+                    WeekStartDate = DateTime.SpecifyKind(weekStartDate, DateTimeKind.Local),
                     IsPaid = true
                 };
+                Console.WriteLine($"WeekStartDate Kind: {newStatus.WeekStartDate.Kind}");
+
                 var response = await _httpClient.PostAsJsonAsync(_endpoint, newStatus);
                 response.EnsureSuccessStatusCode();
             }

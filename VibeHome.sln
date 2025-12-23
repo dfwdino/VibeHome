@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11217.181 d18.0
+VisualStudioVersion = 18.0.11217.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VibeHome.UI", "VibeHome.UI\VibeHome.UI.csproj", "{475F67F4-B559-4E73-908A-68856AAC1A62}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D} = {A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VibeHome.Domain", "VibeHome.Domain\VibeHome.Domain.csproj", "{53AC8050-01DB-4BB2-B9A9-856A3E877636}"
 EndProject

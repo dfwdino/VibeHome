@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.VisualBasic;
 
 namespace VibeHome.Infrastructure.Services
 {
@@ -20,9 +21,11 @@ namespace VibeHome.Infrastructure.Services
         public async Task<IEnumerable<WeeklyEarningsReport>> GetWeeklyEarningsAsync()
         {
             var completions = await _context.ChoreCompletions
-                .Where(c => !c.IsDeleted)
+                .Where(c => !c.IsDeleted && c.CompletionDateTime >= DateAndTime.Now.AddDays(-60))
                 .Include(c => c.Kid)
                 .Include(c => c.ChoreItem)
+                .OrderByDescending(c => c.CompletionDateTime)
+                //.Take(100) // really should do based off from X date.
                 .ToListAsync();
 
             var grouped = completions
