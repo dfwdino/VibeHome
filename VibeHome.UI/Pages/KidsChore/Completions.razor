@@ -246,8 +246,8 @@
                         LocationId = UpdateModel.LocationId,
                         ChoreItemId = choreId,
                         Notes = UpdateModel.Notes,
-                        CreatedAt = DateTime.Now,
-                        ModifiedAt = DateTime.Now
+                        CreatedAt = DateTime.Now.ToLocalTime(),
+                        ModifiedAt = DateTime.Now.ToLocalTime()
                     };
 
                     loopitem.Price = UpdateModel.Price == 0 ? 0 : UpdateModel.Price;
@@ -305,7 +305,7 @@
 
     private void ClearForm()
     {
-        UpdateModel = new ChoreCompletion { CompletionDateTime = DateTime.Now };
+        UpdateModel = new ChoreCompletion { CompletionDateTime = DateTime.Now.ToLocalTime() };
         // Set default location
         var defaultLoc = locations.FirstOrDefault(l => l.LocationName.Equals("Daddy's Home", StringComparison.OrdinalIgnoreCase));
         if (defaultLoc != null)

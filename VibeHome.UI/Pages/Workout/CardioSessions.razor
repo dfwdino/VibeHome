@@ -106,7 +106,7 @@
     private List<CardioSession> Sessions { get; set; } = new();
     private List<CardioType> CardioTypes { get; set; } = new();
     private List<WorkoutLocation> Locations { get; set; } = new();
-    private CardioSession NewSession { get; set; } = new() { DateTime = DateTime.Now };
+    private CardioSession NewSession { get; set; } = new() { DateTime = DateTime.Now.ToLocalTime() };
     private CardioSession EditSession { get; set; } = new();
     private int? DurationMinutes { get; set; }
     private int? EditDurationMinutes { get; set; }

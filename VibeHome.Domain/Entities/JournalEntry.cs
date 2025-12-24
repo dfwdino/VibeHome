@@ -18,5 +18,7 @@ namespace VibeHome.Domain.Entities
         public DateTime Date { get; set; }
 
         public bool IsDeleted { get; set; }
+
+        public string? Notes { get; set; }
     }
 }

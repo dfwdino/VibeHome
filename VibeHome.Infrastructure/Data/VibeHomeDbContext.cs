@@ -85,12 +85,12 @@ namespace VibeHome.Infrastructure.Data
 
                 if (entry.State == EntityState.Added && createdAtProp != null)
                 {
-                    createdAtProp.SetValue(entry.Entity, DateTime.Now);
+                    createdAtProp.SetValue(entry.Entity, DateTime.Now.ToLocalTime());
                 }
 
                 if (modifiedAtProp != null)
                 {
-                    modifiedAtProp.SetValue(entry.Entity, DateTime.Now);
+                    modifiedAtProp.SetValue(entry.Entity, DateTime.Now.ToLocalTime());
                 }
             }
 

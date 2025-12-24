@@ -137,14 +137,14 @@ else
 
     private async Task MarkAsPaid(int kidId, DateTime weekStart)
     {
-        await WeeklyPaymentStatusService.MarkAsPaidAsync(kidId, weekStart);
+        await WeeklyPaymentStatusService.MarkAsPaidAsync(kidId, weekStart.ToLocalTime());
         paymentStatuses[(kidId, weekStart)] = true;
         StateHasChanged(); // Refresh the UI
     }
 
     private async Task MarkAsUnpaid(int kidId, DateTime weekStart)
     {
-        await WeeklyPaymentStatusService.MarkAsUnpaidAsync(kidId, weekStart);
+        await WeeklyPaymentStatusService.MarkAsUnpaidAsync(kidId, weekStart.ToLocalTime());
         paymentStatuses[(kidId, weekStart)] = false;
         StateHasChanged(); // Refresh the UI
     }
@@ -160,7 +160,7 @@ else
                 {
                     var kidId = kidGroup.First().KidId;
                     var weekStart = weekGroup.Key;
-                    var isPaid = await WeeklyPaymentStatusService.IsPaidAsync(kidId, weekStart);
+                    var isPaid = await WeeklyPaymentStatusService.IsPaidAsync(kidId, weekStart.ToLocalTime());
                     paymentStatuses[(kidId, weekStart)] = isPaid;
                 }
             }

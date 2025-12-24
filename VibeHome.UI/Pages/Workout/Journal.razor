@@ -41,6 +41,10 @@
                         <label class="form-check-label" for="deletedCheck">Is Deleted</label>
                     </div>
                 }
+                <div class="mb-3">
+                    <label for="Notes" class="form-label">Notes</label>
+                    <InputTextArea id="date" class="form-control" @bind-Value="CurrentEntry.Notes" />
+                </div>
                 <button type="submit" class="btn btn-primary">@(IsEdit ? "Update" : "Save")</button>
                 <button type="button" class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
             </EditForm>
@@ -56,6 +60,7 @@
             <th>Date</th>
             <th>Weight (lbs)</th>
             <th>Waist Size (cm)</th>
+            <th>Notes</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -66,9 +71,11 @@
                 <td>@entry.Date.ToShortDateString()</td>
                 <td>@entry.Pounds</td>
                 <td>@entry.WaistSize</td>
+                <td>@entry.Notes</td>
                 <td>
                     <button class="btn btn-sm btn-primary me-2" @onclick="() => StartEditEntry(entry)">Edit</button>
                 </td>
+               
             </tr>
         }
     </tbody>
