@@ -5,7 +5,19 @@
 
 <h3>Weight Loss Journal</h3>
 
-@if (ShowStatsSet)
+@if(isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (Entries.Count == 0 && isLoading == false)
+{
+    <div class="alert alert-info">No report data available yet.</div>
+}
+else if (ShowStatsSet)
 {
     <div class="mb-4 card p-3">
         <h5>Last 30 Days Stats</h5>
@@ -13,8 +25,7 @@
         <div><strong>Waist Size (in):</strong> Min: @MinWaist, Max: @MaxWaist</div>
     </div>
 }
-
-@if (ShowForm)
+else if (ShowForm)
 {
 
     <div class="card mb-3">
@@ -94,8 +105,9 @@
     private JournalEntry EditEntry { get; set; } = new();
     private bool ShowForm { get; set; } = false;
     private bool IsEdit { get; set; } = false;
-    private bool ShowStatsSet { get; set; } = true;
+    private bool ShowStatsSet { get; set; } = false;
     private decimal MinWeight, MaxWeight, MinWaist, MaxWaist;
+    private bool isLoading = true;
 
     private JournalEntry CurrentEntry => IsEdit ? EditEntry : NewEntry;
 
@@ -103,6 +115,8 @@
     {
         await LoadEntries();
         CalculateStats();
+        isLoading = false;
+        ShowStatsSet = true;
     }
 
     private async Task LoadEntries()
