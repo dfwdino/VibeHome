@@ -5,7 +5,7 @@
 
 <h3>Weight Loss Journal</h3>
 
-@if (StatsSet)
+@if (ShowStatsSet)
 {
     <div class="mb-4 card p-3">
         <h5>Last 30 Days Stats</h5>
@@ -16,9 +16,11 @@
 
 @if (ShowForm)
 {
+
     <div class="card mb-3">
         <div class="card-body">
             <h5 class="card-title">@((IsEdit ? "Edit" : "Add New") + " Entry")</h5>
+            <br/>
             <EditForm Model="@CurrentEntry" OnValidSubmit="HandleSubmit">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
@@ -34,6 +36,11 @@
                     <label for="date" class="form-label">Date</label>
                     <InputDate id="date" class="form-control" @bind-Value="CurrentEntry.Date" />
                 </div>
+                <div class="mb-3">
+                    <label for="Notes" class="form-label">Notes</label>
+                    <InputTextArea id="date" class="form-control" @bind-Value="CurrentEntry.Notes" />
+                </div>
+
                 @if (IsEdit)
                 {
                     <div class="mb-3 form-check">
@@ -41,15 +48,14 @@
                         <label class="form-check-label" for="deletedCheck">Is Deleted</label>
                     </div>
                 }
-                <div class="mb-3">
-                    <label for="Notes" class="form-label">Notes</label>
-                    <InputTextArea id="date" class="form-control" @bind-Value="CurrentEntry.Notes" />
-                </div>
+
                 <button type="submit" class="btn btn-primary">@(IsEdit ? "Update" : "Save")</button>
                 <button type="button" class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
             </EditForm>
+
         </div>
     </div>
+    <div style="padding-bottom:20px;"></div>
 }
 
 <button class="btn btn-success mb-3" @onclick="ShowAddForm">Add New Entry</button>
@@ -88,7 +94,7 @@
     private JournalEntry EditEntry { get; set; } = new();
     private bool ShowForm { get; set; } = false;
     private bool IsEdit { get; set; } = false;
-    private bool StatsSet { get; set; } = false;
+    private bool ShowStatsSet { get; set; } = true;
     private decimal MinWeight, MaxWeight, MinWaist, MaxWaist;
 
     private JournalEntry CurrentEntry => IsEdit ? EditEntry : NewEntry;
@@ -110,6 +116,8 @@
         NewEntry = new JournalEntry { Date = DateTime.Now };
         IsEdit = false;
         ShowForm = true;
+        ShowStatsSet = false;
+
     }
 
     private void StartEditEntry(JournalEntry entry)
@@ -120,8 +128,11 @@
             Pounds = entry.Pounds,
             WaistSize = entry.WaistSize,
             Date = entry.Date,
-            IsDeleted = entry.IsDeleted
+            IsDeleted = entry.IsDeleted,
+            Notes = entry.Notes
         };
+
+        ShowStatsSet = false;
         IsEdit = true;
         ShowForm = true;
     }
@@ -129,8 +140,14 @@
     private void CancelForm()
     {
         ShowForm = false;
+        ShowStatsSet = true;
         NewEntry = new JournalEntry { Date = DateTime.Now };
         EditEntry = new JournalEntry();
+    }
+
+    private void ClearValue()
+    {
+        
     }
 
     private async Task HandleSubmit()
@@ -144,6 +161,7 @@
             await JournalEntryService.AddAsync(NewEntry);
         }
         ShowForm = false;
+        ShowStatsSet = true;
         await LoadEntries();
         CalculateStats();
     }
@@ -157,12 +175,12 @@
             MaxWeight = last30.Max(x => x.Pounds);
             MinWaist = last30.Min(x => x.WaistSize);
             MaxWaist = last30.Max(x => x.WaistSize);
-            StatsSet = true;
+            ShowStatsSet = true;
         }
         else
         {
             MinWeight = MaxWeight = MinWaist = MaxWaist = 0;
-            StatsSet = false;
+            ShowStatsSet = false;
         }
     }
 }
