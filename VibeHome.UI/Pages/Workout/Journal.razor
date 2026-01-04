@@ -24,6 +24,36 @@ else if (ShowStatsSet)
         <div><strong>Weight (lbs):</strong> Min: @MinWeight, Max: @MaxWeight</div>
         <div><strong>Waist Size (in):</strong> Min: @MinWaist, Max: @MaxWaist</div>
     </div>
+
+    <button class="btn btn-success mb-3" @onclick="ShowAddForm">Add New Entry</button>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Weight (lbs)</th>
+                <th>Waist Size (cm)</th>
+                <th>Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var entry in SortedEntries)
+            {
+                <tr>
+                    <td>@entry.Date.ToShortDateString()</td>
+                    <td>@entry.Pounds</td>
+                    <td>@entry.WaistSize</td>
+                    <td>@entry.Notes</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary me-2" @onclick="() => StartEditEntry(entry)">Edit</button>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+
 }
 else if (ShowForm)
 {
@@ -69,34 +99,6 @@ else if (ShowForm)
     <div style="padding-bottom:20px;"></div>
 }
 
-<button class="btn btn-success mb-3" @onclick="ShowAddForm">Add New Entry</button>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Weight (lbs)</th>
-            <th>Waist Size (cm)</th>
-            <th>Notes</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var entry in SortedEntries)
-        {
-            <tr>
-                <td>@entry.Date.ToShortDateString()</td>
-                <td>@entry.Pounds</td>
-                <td>@entry.WaistSize</td>
-                <td>@entry.Notes</td>
-                <td>
-                    <button class="btn btn-sm btn-primary me-2" @onclick="() => StartEditEntry(entry)">Edit</button>
-                </td>
-               
-            </tr>
-        }
-    </tbody>
-</table>
 
 @code {
     private List<JournalEntry> Entries { get; set; } = new();

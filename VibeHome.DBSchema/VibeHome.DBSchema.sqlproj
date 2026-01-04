@@ -116,5 +116,7 @@
     <Build Include="Security\Kids.sql" />
     <Build Include="Security\HomeAppSettings.sql" />
     <Build Include="Security\Auto.sql" />
+    <Build Include="Shopping\Tables\ItemBrands.sql" />
+    <Build Include="Security\IIS APPPOOL_No Managed Code.sql" />
   </ItemGroup>
 </Project>
