@@ -19,13 +19,17 @@ else if (Entries.Count == 0 && isLoading == false)
 }
 else if (ShowStatsSet)
 {
+    <div>
+    <button class="btn btn-success mb-3" @onclick="ShowAddForm">Add New Entry</button>
+    </div>
+
     <div class="mb-4 card p-3">
         <h5>Last 30 Days Stats</h5>
         <div><strong>Weight (lbs):</strong> Min: @MinWeight, Max: @MaxWeight</div>
         <div><strong>Waist Size (in):</strong> Min: @MinWaist, Max: @MaxWaist</div>
     </div>
 
-    <button class="btn btn-success mb-3" @onclick="ShowAddForm">Add New Entry</button>
+  
 
     <table class="table">
         <thead>
