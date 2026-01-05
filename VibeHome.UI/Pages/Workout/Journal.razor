@@ -33,23 +33,28 @@ else if (ShowStatsSet)
                 <th>Date</th>
                 <th>Weight (lbs)</th>
                 <th>Waist Size (cm)</th>
-                <th>Notes</th>
-                <th>Actions</th>
+                @* <th>Notes</th> *@
+            
             </tr>
         </thead>
         <tbody>
             @foreach (var entry in SortedEntries)
             {
                 <tr>
-                    <td>@entry.Date.ToShortDateString()</td>
+                    <td style="cursor: pointer;" @onclick="() => StartEditEntry(entry)" >@entry.Date.ToShortDateString()</td>
                     <td>@entry.Pounds</td>
                     <td>@entry.WaistSize</td>
-                    <td>@entry.Notes</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary me-2" @onclick="() => StartEditEntry(entry)">Edit</button>
-                    </td>
-
+                   
                 </tr>
+                @if (string.IsNullOrEmpty(entry.Notes) == false)
+                {  <tr>
+
+                    <td colspan="3"><span style="font-weight: bold;">Notes:</span> @entry.Notes</td>
+                 
+                    </tr>
+                    <br />
+                }
+               
             }
         </tbody>
     </table>
