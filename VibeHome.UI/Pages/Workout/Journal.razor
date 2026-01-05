@@ -116,7 +116,7 @@ else if (ShowForm)
     protected override async Task OnInitializedAsync()
     {
         await LoadEntries();
-        CalculateStats();
+        await CalculateStats();
         isLoading = false;
         ShowStatsSet = true;
     }
@@ -163,7 +163,7 @@ else if (ShowForm)
 
     private void ClearValue()
     {
-        
+
     }
 
     private async Task HandleSubmit()
@@ -178,11 +178,11 @@ else if (ShowForm)
         }
         ShowForm = false;
         ShowStatsSet = true;
-        await LoadEntries();
-        CalculateStats();
+        await Task.WhenAll(LoadEntries(), CalculateStats());
+
     }
 
-    private void CalculateStats()
+    private async Task CalculateStats()
     {
         var last30 = Entries.Where(x => x.Date >= DateTime.Now.AddDays(-30) && !x.IsDeleted).ToList();
         if (last30.Any())
