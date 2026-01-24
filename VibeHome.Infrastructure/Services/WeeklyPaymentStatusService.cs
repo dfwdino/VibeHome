@@ -22,7 +22,7 @@ namespace VibeHome.Infrastructure.Services
 
         public async Task<WeeklyPaymentStatus?> GetByIdAsync(int id)
         {
-            return await _context.WeeklyPaymentStatuses.FindAsync(id);
+            return await _context.WeeklyPaymentStatuses.AsNoTracking().FirstAsync(mm => mm.WeeklyPaymentStatusId == id);
         }
 
         public async Task AddAsync(WeeklyPaymentStatus entity)

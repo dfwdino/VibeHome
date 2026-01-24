@@ -24,6 +24,7 @@ namespace VibeHome.Infrastructure.Services
                 .Where(c => !c.IsDeleted && c.CompletionDateTime >= DateAndTime.Now.AddDays(-60))
                 .Include(c => c.Kid)
                 .Include(c => c.ChoreItem)
+                .AsSplitQuery()
                 .OrderByDescending(c => c.CompletionDateTime)
                 //.Take(100) // really should do based off from X date.
                 .ToListAsync();
@@ -63,6 +64,7 @@ namespace VibeHome.Infrastructure.Services
                 .Where(c => !c.IsDeleted)
                 .Include(c => c.Kid)
                 .Include(c => c.ChoreItem)
+                 .AsSplitQuery()
                 .ToListAsync();
 
             var grouped = completions

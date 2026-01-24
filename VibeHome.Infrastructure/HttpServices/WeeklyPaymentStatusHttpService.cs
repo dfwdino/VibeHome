@@ -59,6 +59,7 @@ namespace VibeHome.Infrastructure.HttpServices
             if (existing != null)
             {
                 existing.IsPaid = false;
+                existing.WeekStartDate = DateTime.SpecifyKind(weekStartDate, DateTimeKind.Local);
                 var response = await _httpClient.PutAsJsonAsync($"{_endpoint}({existing.WeeklyPaymentStatusId})", existing);
                 response.EnsureSuccessStatusCode();
             }

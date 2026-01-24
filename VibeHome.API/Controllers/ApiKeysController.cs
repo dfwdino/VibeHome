@@ -21,6 +21,7 @@ namespace VibeHome.API.Controllers
         public async Task<IActionResult> Get()
         {
             var apiKeys = await _repository.GetAllAsync();
+            
             return Ok(apiKeys);
         }
 
