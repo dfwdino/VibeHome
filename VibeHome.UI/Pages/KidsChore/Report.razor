@@ -22,8 +22,9 @@ else if (reports.Count == 0 && isLoading == false)
 else
 {
     bool isFirst = true;
-    foreach (var weekGroup in reports.GroupBy(r => r.WeekStartDate).OrderByDescending(g => g.Key))
-    {
+    <Virtualize Items="@reports.GroupBy(r => r.WeekStartDate).OrderByDescending(g => g.Key).ToArray()" Context="weekGroup">
+@*     foreach (var weekGroup in reports.GroupBy(r => r.WeekStartDate).OrderByDescending(g => g.Key)) *@
+    @{
         var weekValues = weekGroup.SelectMany(r => r.Completions).Select(c => c.Price != 0 ? c.Price : (c.ChoreItem?.Price ?? 0)).ToList();
         var weekGrandTotal = weekValues.Sum();
         if (!isFirst)
@@ -46,8 +47,9 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var kidGroup in weekGroup.GroupBy(r => r.KidName).OrderBy(g => g.Key))
-                {
+                <Virtualize Items="@weekGroup.GroupBy(r => r.KidName).OrderBy(g => g.Key).ToList()" Context="kidGroup">
+               @*  @foreach (var kidGroup in weekGroup.GroupBy(r => r.KidName).OrderBy(g => g.Key)) *@
+                @{
                     var completions = kidGroup.SelectMany(r => r.Completions).ToList();
                     var values = completions.Select(c => c.Price != 0 ? c.Price : (c.ChoreItem?.Price ?? 0)).ToList();
                     var positiveTotal = values.Where(v => v > 0).Sum();
@@ -60,8 +62,9 @@ else
                     var isPaid = paymentStatuses.GetValueOrDefault((kidGroup.First().KidId, weekStart), false);
 
                     // Restore chore rows
-                    foreach (var completion in completions)
-                    {
+                    <Virtualize Items="@completions" Context="completion">
+                   @*  foreach (var completion in completions)
+                    { *@
                         <tr>
                             <td class="text-center">@kidGroup.Key</td>
                             <td class="text-center">
@@ -74,7 +77,8 @@ else
                             </td>
                             <td class="text-center">@((completion.Price != 0 ? completion.Price : (completion.ChoreItem?.Price ?? 0)).ToString("C"))</td>
                         </tr>
-                    }
+                    @* } *@
+                    </Virtualize>
                     <tr class="table-secondary">
                         <td></td>
                         <td class="text-center">
@@ -112,12 +116,13 @@ else
 
                     </tr>
                 }
-
+                </Virtualize>
 
             </tbody>
         </table>
 
     }
+    </Virtualize>
 }
 
 @code {

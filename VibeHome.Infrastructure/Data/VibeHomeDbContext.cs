@@ -27,6 +27,9 @@ namespace VibeHome.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            ///TODO: need to break this out into separate configuration files for each entity Ex.  XItemConfiguration : IEntityTypeConfiguration<XClass>
+            ///modelBuilder.ApplyConfigurationsFromAssembly(typeof(YourDbContext).Assembly); in this class
+
             // KidsChore Domain Schema
             modelBuilder.Entity<Kid>().ToTable("Kids", "Kids");
             modelBuilder.Entity<Kid>().ToTable("Kids", "Kids", t => t.HasTrigger("trg_Kids_ModifiedAt"));
