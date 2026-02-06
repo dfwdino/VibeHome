@@ -29,15 +29,26 @@ else
         var weekGrandTotal = weekValues.Sum();
         if (!isFirst)
         {
-            <div style="height: 18px;"></div>
+            <div style="height: 8px;"></div>
             <hr class="my-1" />
+
+                <tr style="border:none;color:none">
+                    <td colspan="3" style="border:none;color:none">
+                        <hr />
+                    </td>
+
+                </tr>
         }
+        
         isFirst = false;
         var weekStart = weekGroup.Key;
         var weekEnd = weekStart.AddDays(6);
         <div class="bg-info text-dark text-center mb-2" style="padding-top: 12px; padding-bottom: 12px; border-radius: 4px;">
             <strong>From @weekStart.ToString("MMMM, dd") to @weekEnd.ToString("MMMM dd, yyyy")</strong>
         </div>
+
+           
+
         <table class="table table-bordered table-sm text-center">
             <thead>
                 <tr>
@@ -47,6 +58,9 @@ else
                 </tr>
             </thead>
             <tbody>
+
+                    
+                    <!-- Virtualize is really not made for this b/c of the size.  Its really for more then 500 rows.  Let it here so i dont forget about this in other objects.  -->
                 <Virtualize Items="@weekGroup.GroupBy(r => r.KidName).OrderBy(g => g.Key).ToList()" Context="kidGroup">
                @*  @foreach (var kidGroup in weekGroup.GroupBy(r => r.KidName).OrderBy(g => g.Key)) *@
                 @{
@@ -108,16 +122,19 @@ else
                         </td>
                         <td class="text-center"><strong>@values.Sum().ToString("C")</strong></td>
                     </tr>
-
-                    <tr style="border:none;color:none">
+                   
+                   <tr style="border:none;color:none">
                         <td colspan="3" style="border:none;color:none">
-                            <hr style="height:10px;border-width:0;color:black;background-color:blue" />
+                            <div style="height:10px;width:100%;" />
                         </td>
-
                     </tr>
+         
+                   
                 }
                 </Virtualize>
 
+               
+                   
             </tbody>
         </table>
 
