@@ -64,7 +64,7 @@
                        @onchange="@(() => ToggleChore(chore.ChoreItemId))"
                        id="@($"chore-{chore.ChoreItemId}")" />
                 <label class="form-check-label" for="@($"chore-{chore.ChoreItemId}")" style="padding-right:10px;padding-left:5px">
-                    @chore.ChoreName
+                    @chore.ChoreName.ToTitleCase()
                 </label>
                 </span>
             }
@@ -110,11 +110,14 @@
                 <InputText class="form-control" @bind-Value="UpdateModel.Notes" />
             </div>
         }
+       
         <button type="submit" class="btn btn-success">@(UpdateModel.ChoreCompletionId == 0 ? "Add Completion" : "Update Completion")</button>
         @if (UpdateModel.ChoreCompletionId != 0)
         {
             <button type="button" class="btn btn-secondary ms-1" @onclick="ClearForm">Cancel</button>
         }
+
+        <div>&nbsp;</div>
     </EditForm>
 </div>
 
