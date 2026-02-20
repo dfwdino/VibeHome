@@ -118,6 +118,8 @@
         isSubmitting = true;
         try
         {
+            choreModel.ChoreName = choreModel.ChoreName.ToTitleCase();
+
             if (choreModel.ChoreItemId == 0)
                 await ChoreItemService.AddAsync(choreModel);
             else
@@ -136,7 +138,7 @@
         choreModel = new ChoreItem
         {
             ChoreItemId = chore.ChoreItemId,
-            ChoreName = chore.ChoreName,
+            ChoreName = chore.ChoreName.ToTitleCase(),
             Price = chore.Price,
             Description = chore.Description
         };

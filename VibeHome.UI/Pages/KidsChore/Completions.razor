@@ -138,7 +138,7 @@
                 <tr>
                     <td>@kids.FirstOrDefault(k => k.KidId == completion.KidId)?.Name</td>
                     <td>
-                        @chores.FirstOrDefault(c => c.ChoreItemId == completion.ChoreItemId)?.ChoreName
+                        @chores.FirstOrDefault(c => c.ChoreItemId == completion.ChoreItemId)?.ChoreName.ToTitleCase()
                         @if (!string.IsNullOrWhiteSpace(completion.Notes))
                         {
                             <span style="font-style:italic"> - @completion.Notes</span>
@@ -161,7 +161,7 @@
         <div class="card mb-2 shadow-sm">
             <div class="card-body p-2">
                 <div><strong>Kid:</strong> @kids.FirstOrDefault(k => k.KidId == completion.KidId)?.Name</div>
-                <div><strong>Chore:</strong> @chores.FirstOrDefault(c => c.ChoreItemId == completion.ChoreItemId)?.ChoreName</div>
+                <div><strong>Chore:</strong> @chores.FirstOrDefault(c => c.ChoreItemId == completion.ChoreItemId)?.ChoreName.ToTitleCase()</div>
                 <div><strong>Location:</strong> @locations.FirstOrDefault(l => l.LocationId == completion.LocationId)?.LocationName</div>
                 <div><strong>Date:</strong> @completion.CompletionDateTime.ToShortDateString()</div>
                 @if (!string.IsNullOrWhiteSpace(completion.Notes))
