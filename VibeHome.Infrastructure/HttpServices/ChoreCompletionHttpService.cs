@@ -40,8 +40,15 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task UpdateAsync(ChoreCompletion choreCompletion)
         {
+
+            choreCompletion.ModifiedAt = DateTime.Now.ToLocalTime();
+            choreCompletion.CompletionDateTime = DateTime.SpecifyKind(choreCompletion.CompletionDateTime, DateTimeKind.Local);
             var response = await _httpClient.PutAsJsonAsync($"{_endpoint}({choreCompletion.ChoreCompletionId})", choreCompletion);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Update failed ({(int)response.StatusCode}): {response.ReasonPhrase}. {body}");
+            }
         }
 
         public async Task DeleteAsync(int id)

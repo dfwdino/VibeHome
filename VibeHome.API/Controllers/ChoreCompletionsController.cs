@@ -47,23 +47,37 @@ namespace VibeHome.API.Controllers
             return Created(choreCompletion);
         }
 
+        [HttpPut]
         public async Task<IActionResult> Put(int key, [FromBody] ChoreCompletion choreCompletion)
         {
+            if (choreCompletion == null)
+            {
+                return BadRequest("Request body is required.");
+            }
+
+            // Use key from URL as authority (OData binding can leave key as 0 in some hosts)
+            var id = key > 0 ? key : choreCompletion.ChoreCompletionId;
+            if (id <= 0)
+            {
+                return BadRequest("A valid ChoreCompletionId is required (in URL or body).");
+            }
+            choreCompletion.ChoreCompletionId = id;
+
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { Message = "Validation failed", Errors = ModelState.Where(x => x.Value?.Errors?.Count > 0).ToDictionary(k => k.Key, v => v.Value?.Errors?.Select(e => e.ErrorMessage).ToArray()) });
             }
 
-            if (key != choreCompletion.ChoreCompletionId)
-            {
-                return BadRequest();
-            }
-
-            var existing = await _choreCompletionService.GetByIdAsync(key);
+            var existing = await _choreCompletionService.GetByIdAsync(id);
             if (existing == null)
             {
                 return NotFound();
             }
+
+            // Preserve server-controlled fields so client doesn't overwrite with defaults
+            choreCompletion.CreatedAt = existing.CreatedAt;
+            choreCompletion.ModifiedAt = DateTime.UtcNow;
+            choreCompletion.IsDeleted = existing.IsDeleted;
 
             await _choreCompletionService.UpdateAsync(choreCompletion);
             return Updated(choreCompletion);

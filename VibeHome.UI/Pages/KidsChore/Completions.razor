@@ -111,7 +111,8 @@
             </div>
         }
        
-        <button type="submit" class="btn btn-success">@(UpdateModel.ChoreCompletionId == 0 ? "Add Completion" : "Update Completion")</button>
+        <button type="submit" class="btn btn-success" >@(UpdateModel.ChoreCompletionId == 0 ? "Add Completion" : "Update Completion")</button>
+
         @if (UpdateModel.ChoreCompletionId != 0)
         {
             <button type="button" class="btn btn-secondary ms-1" @onclick="ClearForm">Cancel</button>
@@ -223,7 +224,7 @@
 
         filteredCompletions = allCompletions;
         kids = (await KidService.GetAllAsync()).Where(k => !k.IsDeleted).ToList();
-        chores = (await ChoreItemService.GetAllAsync()).Where(c => !c.IsDeleted).ToList();
+        chores = (await ChoreItemService.GetAllAsync()).OrderBy(m => m.ChoreName).Where(c => !c.IsDeleted).ToList();
         locations = (await LocationService.GetAllAsync()).Where(l => !l.IsDeleted).ToList();
         // Set default location if not editing
         if (UpdateModel.ChoreCompletionId == 0)
@@ -238,34 +239,36 @@
     {
         try
         {
-            foreach (var choreId in ChoreItemIds)
+            // Edit mode: update the existing completion once (don't rely on foreach — it runs 0 times if no chore selected)
+            if (UpdateModel.ChoreCompletionId != 0)
             {
-                if (UpdateModel.ChoreCompletionId == 0 || ChoreItemIds.Count > 1)
-                {
-                    ChoreCompletion loopitem = new()
-                    {
-                        CompletionDateTime = DateTime.Now,
-                        KidId = UpdateModel.KidId,
-                        LocationId = UpdateModel.LocationId,
-                        ChoreItemId = choreId,
-                        Notes = UpdateModel.Notes,
-                        CreatedAt = DateTime.Now.ToLocalTime(),
-                        ModifiedAt = DateTime.Now.ToLocalTime()
-                    };
-
-                    loopitem.Price = UpdateModel.Price == 0 ? 0 : UpdateModel.Price;
-
-                    await ChoreCompletionService.AddAsync(loopitem);
-                    NotificationService.ShowSuccess("Chore completion added successfully!");
-                }
-                else
-                {
-                    await ChoreCompletionService.UpdateAsync(UpdateModel);
-                    NotificationService.ShowSuccess("Chore completion updated successfully!");
-                }
+                if (ChoreItemIds.Count > 0)
+                    UpdateModel.ChoreItemId = ChoreItemIds[0];
+                await ChoreCompletionService.UpdateAsync(UpdateModel);
+                NotificationService.ShowSuccess("Chore completion updated successfully!");
+                await LoadData();
+                ClearForm();
+                return;
             }
 
-
+            // Add mode: create one completion per selected chore
+            foreach (var choreId in ChoreItemIds)
+            {
+                ChoreCompletion loopitem = new()
+                {
+                    CompletionDateTime = DateTime.Now,
+                    KidId = UpdateModel.KidId,
+                    LocationId = UpdateModel.LocationId,
+                    ChoreItemId = choreId,
+                    Notes = UpdateModel.Notes,
+                    CreatedAt = DateTime.Now.ToLocalTime(),
+                    ModifiedAt = DateTime.Now.ToLocalTime()
+                };
+                loopitem.Price = UpdateModel.Price == 0 ? 0 : UpdateModel.Price;
+                await ChoreCompletionService.AddAsync(loopitem);
+            }
+            if (ChoreItemIds.Count > 0)
+                NotificationService.ShowSuccess("Chore completion added successfully!");
 
             await LoadData();
             ClearForm();
@@ -282,10 +285,12 @@
         {
             ChoreCompletionId = completion.ChoreCompletionId,
             KidId = completion.KidId,
-            //ChoreItemId = completion.ChoreItemId,
+            ChoreItemId = completion.ChoreItemId,
             LocationId = completion.LocationId,
             CompletionDateTime = completion.CompletionDateTime,
-            Notes = completion.Notes
+            Notes = completion.Notes,
+            Price = completion.Price,
+            CreatedAt = completion.CreatedAt
         };
         ChoreItemIds.Clear();
         ChoreItemIds.Add(completion.ChoreItemId);
