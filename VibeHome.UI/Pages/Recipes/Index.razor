@@ -16,7 +16,8 @@
         <div class="row g-2">
             <div class="col-12 col-md-5">
                 <input type="text" class="form-control" placeholder="Search recipes..."
-                       @bind="searchTerm" @bind:event="oninput" @oninput="ApplyFilters" />
+                       value="@searchTerm"
+                       @oninput="@(e => { searchTerm = e.Value?.ToString() ?? string.Empty; ApplyFilters(); })" />
             </div>
             <div class="col-6 col-md-3">
                 <select class="form-select" @bind="difficultyFilter" @bind:after="ApplyFilters">
