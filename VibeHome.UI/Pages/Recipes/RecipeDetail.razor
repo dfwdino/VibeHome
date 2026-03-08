@@ -1,0 +1,319 @@
+@using VibeHome.Application.Interfaces
+@using VibeHome.Domain.Entities
+@page "/Recipes/{Id:int}"
+@inject IRecipeService RecipeService
+@inject IRecipeIngredientService RecipeIngredientService
+@inject IRecipeInstructionService RecipeInstructionService
+@inject IRecipeFavoriteService FavoriteService
+@inject NavigationManager NavigationManager
+
+@if (isLoading)
+{
+    <div class="text-center py-5"><div class="spinner-border text-success" role="status"></div></div>
+}
+else if (recipe == null)
+{
+    <div class="alert alert-warning">Recipe not found. <a href="/Recipes">Back to Recipes</a></div>
+}
+else
+{
+    <div class="container-fluid px-0 px-md-3" style="max-width:800px; margin:0 auto;">
+
+        <!-- Header -->
+        <div class="mb-3">
+            <a href="/Recipes" class="btn btn-sm btn-outline-secondary mb-3">← Back</a>
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <h2 class="mb-1 fw-bold">@recipe.RecipeName</h2>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn @(isFavorite ? "btn-warning" : "btn-outline-warning")"
+                            @onclick="ToggleFavorite" disabled="@isSubmitting"
+                            title="@(isFavorite ? "Remove from Favorites" : "Save to Favorites")">
+                        @(isFavorite ? "❤️ Saved" : "🤍 Save to Favorites")
+                    </button>
+                    <a href="/Recipes/edit/@recipe.RecipeId" class="btn btn-outline-primary">✏️ Edit</a>
+                </div>
+            </div>
+
+            <!-- Rating -->
+            @if (recipe.Rating.HasValue)
+            {
+                <div class="my-2" style="font-size:1.4rem; color:#f5a623; letter-spacing:2px;">
+                    @RenderStars(recipe.Rating)
+                </div>
+            }
+
+            <!-- Quick Stats -->
+            <div class="d-flex flex-wrap gap-3 text-muted small mt-2 mb-3">
+                @if (recipe.PrepTimeMinutes.HasValue)
+                {
+                    <span><strong>Prep:</strong> @recipe.PrepTimeMinutes min</span>
+                }
+                @if (recipe.CookTimeMinutes.HasValue)
+                {
+                    <span><strong>Cook:</strong> @recipe.CookTimeMinutes min</span>
+                }
+                @if (recipe.PrepTimeMinutes.HasValue || recipe.CookTimeMinutes.HasValue)
+                {
+                    <span><strong>Total:</strong> @((recipe.PrepTimeMinutes ?? 0) + (recipe.CookTimeMinutes ?? 0)) min</span>
+                }
+                @if (recipe.Servings.HasValue)
+                {
+                    <span><strong>Servings:</strong> @recipe.Servings</span>
+                }
+                @if (!string.IsNullOrEmpty(recipe.DifficultyLevel))
+                {
+                    <span><strong>Difficulty:</strong>
+                        <span class="badge @GetDifficultyBadge(recipe.DifficultyLevel)">@recipe.DifficultyLevel</span>
+                    </span>
+                }
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <!-- Ingredients Column -->
+            <div class="col-12 col-md-5">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header fw-bold bg-light">INGREDIENTS</div>
+                    <div class="card-body">
+                        @if (!ingredients.Any())
+                        {
+                            <p class="text-muted">No ingredients listed.</p>
+                        }
+                        else
+                        {
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var ing in ingredients)
+                                {
+                                    <li class="py-1 border-bottom d-flex align-items-center gap-2">
+                                        <input type="checkbox" class="form-check-input mt-0"
+                                               checked="@checkedIngredients.Contains(ing.RecipeIngredientId)"
+                                               @onchange="@(() => ToggleIngredientCheck(ing.RecipeIngredientId))" />
+                                        <span class="@(checkedIngredients.Contains(ing.RecipeIngredientId) ? "text-muted text-decoration-line-through" : "")">
+                                            @if (!string.IsNullOrEmpty(ing.Quantity))
+                                            {
+                                                <strong>@ing.Quantity</strong>
+                                            }
+                                            @if (ing.UnitTypeId.HasValue && unitTypeMap.ContainsKey(ing.UnitTypeId.Value))
+                                            {
+                                                <span> @unitTypeMap[ing.UnitTypeId.Value]</span>
+                                            }
+                                            <span> @ing.IngredientName</span>
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions Column -->
+            <div class="col-12 col-md-7">
+                <div class="card shadow-sm">
+                    <div class="card-header fw-bold bg-light">INSTRUCTIONS</div>
+                    <div class="card-body p-2">
+                        @if (!instructions.Any())
+                        {
+                            <p class="text-muted p-2">No instructions listed.</p>
+                        }
+                        else
+                        {
+                            <ol class="mb-0 ps-3">
+                                @foreach (var step in instructions)
+                                {
+                                    <li class="py-2 border-bottom">
+                                        <div class="d-flex justify-content-between align-items-start gap-2">
+                                            <span>
+                                                <strong>@step.InstructionText.Split(' ').First()</strong>
+                                                @(" " + string.Join(" ", step.InstructionText.Split(' ').Skip(1)))
+                                            </span>
+                                            @if (!string.IsNullOrEmpty(step.IconCode))
+                                            {
+                                                <span style="font-size:1.4rem; min-width:2rem; text-align:center;">@step.IconCode</span>
+                                            }
+                                        </div>
+                                    </li>
+                                }
+                            </ol>
+                        }
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                @if (!string.IsNullOrWhiteSpace(recipe.Notes))
+                {
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header fw-bold bg-light">NOTES &amp; VARIATIONS</div>
+                        <div class="card-body">
+                            <p class="mb-0" style="white-space:pre-wrap;">@recipe.Notes</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Nutrition Info -->
+        @if (HasNutrition())
+        {
+            <div class="card shadow-sm mt-3">
+                <div class="card-header fw-bold bg-light">NUTRITION INFO</div>
+                <div class="card-body">
+                    <div class="row g-2 text-center">
+                        @if (recipe.Calories.HasValue)
+                        {
+                            <div class="col-6 col-md-3">
+                                <div class="fw-bold fs-5">@recipe.Calories</div>
+                                <div class="text-muted small">Calories</div>
+                            </div>
+                        }
+                        @if (recipe.Protein.HasValue)
+                        {
+                            <div class="col-6 col-md-3">
+                                <div class="fw-bold fs-5">@recipe.Protein g</div>
+                                <div class="text-muted small">Protein</div>
+                            </div>
+                        }
+                        @if (recipe.Fat.HasValue)
+                        {
+                            <div class="col-6 col-md-3">
+                                <div class="fw-bold fs-5">@recipe.Fat g</div>
+                                <div class="text-muted small">Total Fat</div>
+                            </div>
+                        }
+                        @if (recipe.TotalCarbs.HasValue)
+                        {
+                            <div class="col-6 col-md-3">
+                                <div class="fw-bold fs-5">@recipe.TotalCarbs g</div>
+                                <div class="text-muted small">Total Carbs</div>
+                            </div>
+                        }
+                        @if (recipe.Fiber.HasValue)
+                        {
+                            <div class="col-6 col-md-3">
+                                <div class="fw-bold fs-5">@recipe.Fiber g</div>
+                                <div class="text-muted small">Fiber</div>
+                            </div>
+                        }
+                        @if (recipe.Sugar.HasValue)
+                        {
+                            <div class="col-6 col-md-3">
+                                <div class="fw-bold fs-5">@recipe.Sugar g</div>
+                                <div class="text-muted small">Sugar</div>
+                            </div>
+                        }
+                        @if (recipe.Sodium.HasValue)
+                        {
+                            <div class="col-6 col-md-3">
+                                <div class="fw-bold fs-5">@recipe.Sodium mg</div>
+                                <div class="text-muted small">Sodium</div>
+                            </div>
+                        }
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(recipe.AdditionalNutritionDetails))
+                    {
+                        <p class="mt-2 mb-0 text-muted small">@recipe.AdditionalNutritionDetails</p>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="mt-4 pb-4">
+            <a href="/Recipes" class="btn btn-outline-secondary">← Back to Recipes</a>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Recipe? recipe;
+    private List<RecipeIngredient> ingredients = new();
+    private List<RecipeInstruction> instructions = new();
+    private HashSet<int> checkedIngredients = new();
+    private Dictionary<int, string> unitTypeMap = new();
+    private bool isFavorite = false;
+    private RecipeFavorite? currentFavorite;
+    private bool isLoading = true;
+    private bool isSubmitting = false;
+
+    // TODO: Replace with authenticated UserId when auth is enabled
+    // private const bool UseAuthentication = false;
+    // private int? currentUserId = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        var recipeTask = RecipeService.GetByIdAsync(Id);
+        var ingredientsTask = RecipeIngredientService.GetByRecipeIdAsync(Id);
+        var instructionsTask = RecipeInstructionService.GetByRecipeIdAsync(Id);
+        var favoritesTask = FavoriteService.GetAllAsync();
+
+        await Task.WhenAll(recipeTask, ingredientsTask, instructionsTask, favoritesTask);
+
+        recipe = await recipeTask;
+        ingredients = (await ingredientsTask).ToList();
+        instructions = (await instructionsTask).ToList();
+
+        var allFavorites = (await favoritesTask).Where(f => !f.IsDeleted).ToList();
+        currentFavorite = allFavorites.FirstOrDefault(f => f.RecipeId == Id);
+        isFavorite = currentFavorite != null;
+
+        // Build unit type display map from ingredients
+        var unitTypeIds = ingredients.Where(i => i.UnitTypeId.HasValue).Select(i => i.UnitTypeId!.Value).Distinct();
+        // Note: Unit abbreviations are stored inline in IngredientName for display simplicity
+        // Full unit type lookup can be added here if needed
+
+        isLoading = false;
+    }
+
+    private void ToggleIngredientCheck(int id)
+    {
+        if (!checkedIngredients.Remove(id))
+            checkedIngredients.Add(id);
+    }
+
+    private async Task ToggleFavorite()
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        try
+        {
+            if (isFavorite && currentFavorite != null)
+            {
+                await FavoriteService.DeleteAsync(currentFavorite.RecipeFavoriteId);
+                currentFavorite = null;
+                isFavorite = false;
+            }
+            else
+            {
+                var fav = new RecipeFavorite { RecipeId = Id, UserId = null };
+                await FavoriteService.AddAsync(fav);
+                var all = await FavoriteService.GetAllAsync();
+                currentFavorite = all.Where(f => !f.IsDeleted && f.RecipeId == Id).OrderByDescending(f => f.CreatedAt).FirstOrDefault();
+                isFavorite = true;
+            }
+        }
+        finally { isSubmitting = false; }
+    }
+
+    private string RenderStars(decimal? rating)
+    {
+        if (!rating.HasValue) return string.Empty;
+        var filled = (int)Math.Round(rating.Value);
+        return string.Concat(Enumerable.Repeat("★", filled)) + string.Concat(Enumerable.Repeat("☆", 5 - filled));
+    }
+
+    private string GetDifficultyBadge(string? level) => level switch
+    {
+        "Easy" => "bg-success",
+        "Medium" => "bg-warning text-dark",
+        "Hard" => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    private bool HasNutrition() =>
+        recipe?.Calories.HasValue == true || recipe?.Protein.HasValue == true ||
+        recipe?.Fat.HasValue == true || recipe?.TotalCarbs.HasValue == true ||
+        recipe?.Fiber.HasValue == true || recipe?.Sugar.HasValue == true ||
+        recipe?.Sodium.HasValue == true || !string.IsNullOrWhiteSpace(recipe?.AdditionalNutritionDetails);
+}

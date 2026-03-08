@@ -1,0 +1,485 @@
+@using VibeHome.Application.Interfaces
+@using VibeHome.Domain.Entities
+@page "/Recipes/add"
+@page "/Recipes/edit/{Id:int}"
+@inject IRecipeService RecipeService
+@inject IIngredientService IngredientService
+@inject IUnitTypeService UnitTypeService
+@inject IRecipeIngredientService RecipeIngredientService
+@inject IRecipeInstructionService RecipeInstructionService
+@inject NavigationManager NavigationManager
+
+<div style="max-width:720px; margin:0 auto;" class="px-1 pb-5">
+
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <a href="/Recipes" class="btn btn-sm btn-outline-secondary">← Back</a>
+        <h3 class="mb-0">@(isEdit ? "Edit Recipe" : "Add a New Recipe")</h3>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5"><div class="spinner-border text-success" role="status"></div></div>
+    }
+    else
+    {
+        <EditForm Model="recipeModel" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="alert alert-danger" />
+
+            <!-- Star Rating -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-body p-3">
+                    <label class="form-label fw-semibold">Rating</label>
+                    <div class="d-flex gap-1" style="font-size:2rem; cursor:pointer;">
+                        @for (int s = 1; s <= 5; s++)
+                        {
+                            int star = s;
+                            <span @onclick="@(() => SetRating(star))"
+                                  style="color: @(recipeModel.Rating >= star ? "#f5a623" : "#ccc"); user-select:none; transition:color .15s;">
+                                ★
+                            </span>
+                        }
+                        @if (recipeModel.Rating.HasValue)
+                        {
+                            <button type="button" class="btn btn-sm btn-link text-muted p-0 ms-2 align-self-center"
+                                    @onclick="@(() => recipeModel.Rating = null)">clear</button>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recipe Name + Details -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-bold bg-light">RECIPE DETAILS</div>
+                <div class="card-body p-3">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Recipe Name <span class="text-danger">*</span></label>
+                        <InputText class="form-control form-control-lg" @bind-Value="recipeModel.RecipeName"
+                                   placeholder="e.g. Mediterranean Salmon" />
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3">
+                            <label class="form-label fw-semibold">Prep Time (min)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.PrepTimeMinutes" placeholder="15" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label fw-semibold">Cook Time (min)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.CookTimeMinutes" placeholder="25" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label fw-semibold">Servings</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Servings" placeholder="4" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label fw-semibold">Difficulty</label>
+                            <InputSelect class="form-select" @bind-Value="recipeModel.DifficultyLevel">
+                                <option value="">Select...</option>
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
+                            </InputSelect>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ingredients -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-bold bg-light">
+                    INGREDIENTS
+                    <small class="text-muted fw-normal ms-2">— type a name to search or add new</small>
+                </div>
+                <div class="card-body p-3">
+                    @for (int i = 0; i < ingredientRows.Count; i++)
+                    {
+                        int idx = i;
+                        var row = ingredientRows[idx];
+                        <div class="row g-1 mb-2 align-items-start">
+                            <div class="col-3">
+                                <input type="text" class="form-control" placeholder="Qty"
+                                       value="@row.Quantity"
+                                       @onchange="@(e => row.Quantity = e.Value?.ToString() ?? "")" />
+                            </div>
+                            <div class="col-4">
+                                <select class="form-select"
+                                        value="@row.UnitTypeId"
+                                        @onchange="@(e => row.UnitTypeId = int.TryParse(e.Value?.ToString(), out var v) ? (int?)v : null)">
+                                    <option value="">Unit</option>
+                                    @foreach (var u in allUnitTypes)
+                                    {
+                                        <option value="@u.UnitTypeId">@(string.IsNullOrEmpty(u.Abbreviation) ? u.UnitName : u.Abbreviation)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-4 position-relative">
+                                <input type="text" class="form-control"
+                                       placeholder="Ingredient name"
+                                       value="@row.IngredientName"
+                                       @oninput="@(async e => await OnIngredientInput(e, row))"
+                                       @onfocus="@(() => { row.ShowDropdown = row.Suggestions.Any(); StateHasChanged(); })"
+                                       @onblur="@(async () => { await Task.Delay(200); row.ShowDropdown = false; StateHasChanged(); })" />
+                                @if (row.ShowDropdown && row.Suggestions.Any())
+                                {
+                                    <div class="position-absolute w-100 bg-white border rounded shadow-sm z-3" style="top:100%; left:0; z-index:1050; max-height:180px; overflow-y:auto;">
+                                        @foreach (var suggestion in row.Suggestions)
+                                        {
+                                            <div class="px-3 py-2" style="cursor:pointer;"
+                                                 @onclick="@(() => SelectIngredient(row, suggestion))">
+                                                @suggestion.IngredientName
+                                            </div>
+                                        }
+                                        @if (!row.Suggestions.Any(s => s.IngredientName.Equals(row.IngredientName, StringComparison.OrdinalIgnoreCase)))
+                                        {
+                                            <div class="px-3 py-2 text-success fst-italic" style="cursor:pointer;"
+                                                 @onclick="@(() => AddNewIngredientToRow(row))">
+                                                + Add "@row.IngredientName"
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-1 d-flex align-items-start pt-1">
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        @onclick="@(() => RemoveIngredientRow(idx))">−</button>
+                            </div>
+                        </div>
+                    }
+                    <button type="button" class="btn btn-outline-success btn-sm mt-1" @onclick="AddIngredientRow">
+                        + Add Ingredient
+                    </button>
+                </div>
+            </div>
+
+            <!-- Nutrition Info -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-bold bg-light">NUTRITION INFO <small class="text-muted fw-normal">(optional)</small></div>
+                <div class="card-body p-3">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Calories</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Calories" placeholder="380" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Protein (g)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Protein" placeholder="32" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Fat (g)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Fat" placeholder="24" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Carbs (g)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.TotalCarbs" placeholder="10" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Fiber (g)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Fiber" placeholder="4" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Sugar (g)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Sugar" placeholder="3" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Sodium (mg)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Sodium" placeholder="350" />
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <label class="form-label small fw-semibold">Additional Details</label>
+                        <InputText class="form-control" @bind-Value="recipeModel.AdditionalNutritionDetails"
+                                   placeholder="e.g. Saturated Fat: 4g, Cholesterol: 85mg" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-bold bg-light">INSTRUCTIONS</div>
+                <div class="card-body p-3">
+                    @for (int i = 0; i < instructionRows.Count; i++)
+                    {
+                        int idx = i;
+                        var row = instructionRows[idx];
+                        <div class="d-flex gap-2 mb-2 align-items-start">
+                            <span class="fw-bold text-muted mt-2" style="min-width:1.5rem;">@(idx + 1).</span>
+                            <textarea class="form-control" rows="2"
+                                      placeholder="Describe this step..."
+                                      value="@row.InstructionText"
+                                      @onchange="@(e => row.InstructionText = e.Value?.ToString() ?? "")"></textarea>
+                            <div class="d-flex flex-column gap-1">
+                                <select class="form-select form-select-sm" style="width:3.5rem; font-size:1.1rem; padding:2px;"
+                                        value="@row.IconCode"
+                                        @onchange="@(e => row.IconCode = e.Value?.ToString() ?? "")">
+                                    <option value="">—</option>
+                                    @foreach (var icon in CookingIcons)
+                                    {
+                                        <option value="@icon.Code" title="@icon.Name">@icon.Code</option>
+                                    }
+                                </select>
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        @onclick="@(() => RemoveInstructionRow(idx))">−</button>
+                            </div>
+                        </div>
+                    }
+                    <button type="button" class="btn btn-outline-success btn-sm mt-1" @onclick="AddInstructionRow">
+                        + Add Step
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-bold bg-light">NOTES &amp; VARIATIONS</div>
+                <div class="card-body p-3">
+                    <InputTextArea class="form-control" @bind-Value="recipeModel.Notes" rows="4"
+                                   placeholder="Add any tips, variations, or notes about this recipe..." />
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-success flex-fill btn-lg" disabled="@isSubmitting">
+                    @if (isSubmitting)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    }
+                    @(isEdit ? "Update Recipe" : "Save Recipe")
+                </button>
+                <a href="/Recipes" class="btn btn-outline-secondary btn-lg flex-fill">Cancel</a>
+            </div>
+
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private Recipe recipeModel = new();
+    private List<IngredientRow> ingredientRows = new();
+    private List<InstructionRow> instructionRows = new();
+    private List<Ingredient> allIngredients = new();
+    private List<UnitType> allUnitTypes = new();
+
+    private bool isEdit => Id.HasValue && Id.Value > 0;
+    private bool isLoading = true;
+    private bool isSubmitting = false;
+
+    private static readonly List<(string Code, string Name)> CookingIcons = new()
+    {
+        ("🫒", "Oil"), ("🥘", "Pan"), ("🍳", "Frying Pan"), ("🔥", "Heat"),
+        ("🧂", "Salt"), ("🍋", "Lemon"), ("🥩", "Meat"), ("🐟", "Fish"),
+        ("🥗", "Salad"), ("🧅", "Onion"), ("🧄", "Garlic"), ("🥕", "Carrot"),
+        ("🫕", "Pot"), ("🥄", "Spoon"), ("⏱️", "Timer"), ("🌡️", "Temp"),
+        ("🧊", "Cold"), ("🍅", "Tomato"), ("🌿", "Herb"), ("🍽️", "Serve"),
+        ("🥣", "Bowl"), ("🔪", "Chop"), ("🥚", "Egg"), ("🧈", "Butter"),
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+
+        var ingredientsTask = IngredientService.GetAllAsync();
+        var unitTypesTask = UnitTypeService.GetAllAsync();
+
+        await Task.WhenAll(ingredientsTask, unitTypesTask);
+
+        allIngredients = (await ingredientsTask).Where(i => !i.IsDeleted).OrderBy(i => i.IngredientName).ToList();
+        allUnitTypes = (await unitTypesTask).Where(u => !u.IsDeleted).OrderBy(u => u.UnitName).ToList();
+
+        if (isEdit)
+        {
+            var recipe = await RecipeService.GetByIdAsync(Id!.Value);
+            if (recipe != null && !recipe.IsDeleted)
+            {
+                recipeModel = recipe;
+                var existingIngredients = (await RecipeIngredientService.GetByRecipeIdAsync(Id.Value)).ToList();
+                ingredientRows = existingIngredients.Select(ri => new IngredientRow
+                {
+                    IngredientId = ri.IngredientId,
+                    IngredientName = ri.IngredientName,
+                    Quantity = ri.Quantity ?? "",
+                    UnitTypeId = ri.UnitTypeId,
+                    ExistingRecipeIngredientId = ri.RecipeIngredientId
+                }).ToList();
+
+                var existingInstructions = (await RecipeInstructionService.GetByRecipeIdAsync(Id.Value)).ToList();
+                instructionRows = existingInstructions.Select(ri => new InstructionRow
+                {
+                    InstructionText = ri.InstructionText,
+                    IconCode = ri.IconCode ?? ""
+                }).ToList();
+            }
+        }
+
+        if (!ingredientRows.Any()) AddIngredientRow();
+        if (!instructionRows.Any()) AddInstructionRow();
+
+        isLoading = false;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (isSubmitting || string.IsNullOrWhiteSpace(recipeModel.RecipeName)) return;
+        isSubmitting = true;
+
+        try
+        {
+            int recipeId;
+
+            if (isEdit)
+            {
+                await RecipeService.UpdateAsync(recipeModel);
+                recipeId = recipeModel.RecipeId;
+
+                // Soft-delete all existing ingredients and instructions for this recipe
+                var oldIngredients = await RecipeIngredientService.GetByRecipeIdAsync(recipeId);
+                foreach (var old in oldIngredients)
+                    await RecipeIngredientService.DeleteAsync(old.RecipeIngredientId);
+
+                var oldInstructions = await RecipeInstructionService.GetByRecipeIdAsync(recipeId);
+                foreach (var old in oldInstructions)
+                    await RecipeInstructionService.DeleteAsync(old.RecipeInstructionId);
+            }
+            else
+            {
+                var created = await RecipeService.AddAndGetAsync(recipeModel);
+                recipeId = created.RecipeId;
+            }
+
+            // Save ingredients — resolve ad-hoc names to Ingredient library
+            var refreshedIngredients = (await IngredientService.GetAllAsync())
+                .Where(i => !i.IsDeleted).ToList();
+
+            for (int i = 0; i < ingredientRows.Count; i++)
+            {
+                var row = ingredientRows[i];
+                if (string.IsNullOrWhiteSpace(row.IngredientName)) continue;
+
+                int? ingredientId = row.IngredientId;
+
+                if (ingredientId == null)
+                {
+                    var existing = refreshedIngredients.FirstOrDefault(x =>
+                        x.IngredientName.Equals(row.IngredientName.Trim(), StringComparison.OrdinalIgnoreCase));
+
+                    if (existing != null)
+                    {
+                        ingredientId = existing.IngredientId;
+                    }
+                    else
+                    {
+                        // Add new ingredient to the library
+                        var newIng = await IngredientService.AddAndGetAsync(new Ingredient
+                        {
+                            IngredientName = row.IngredientName.Trim()
+                        });
+                        ingredientId = newIng.IngredientId;
+                        refreshedIngredients.Add(newIng);
+                    }
+                }
+
+                await RecipeIngredientService.AddAsync(new RecipeIngredient
+                {
+                    RecipeId = recipeId,
+                    IngredientId = ingredientId,
+                    IngredientName = row.IngredientName.Trim(),
+                    Quantity = string.IsNullOrWhiteSpace(row.Quantity) ? null : row.Quantity.Trim(),
+                    UnitTypeId = row.UnitTypeId == 0 ? null : row.UnitTypeId,
+                    SortOrder = i
+                });
+            }
+
+            // Save instructions
+            for (int i = 0; i < instructionRows.Count; i++)
+            {
+                var row = instructionRows[i];
+                if (string.IsNullOrWhiteSpace(row.InstructionText)) continue;
+
+                await RecipeInstructionService.AddAsync(new RecipeInstruction
+                {
+                    RecipeId = recipeId,
+                    StepNumber = i + 1,
+                    InstructionText = row.InstructionText.Trim(),
+                    IconCode = string.IsNullOrWhiteSpace(row.IconCode) ? null : row.IconCode
+                });
+            }
+
+            NavigationManager.NavigateTo($"/Recipes/{recipeId}");
+        }
+        finally { isSubmitting = false; }
+    }
+
+    // ─── Ingredient Row Helpers ─────────────────────────────────────────────
+
+    private void AddIngredientRow() => ingredientRows.Add(new IngredientRow());
+    private void RemoveIngredientRow(int idx) { if (ingredientRows.Count > 1) ingredientRows.RemoveAt(idx); }
+
+    private async Task OnIngredientInput(ChangeEventArgs e, IngredientRow row)
+    {
+        row.IngredientName = e.Value?.ToString() ?? "";
+        row.IngredientId = null; // clear previously matched ID
+
+        if (row.IngredientName.Length >= 1)
+        {
+            var term = row.IngredientName.ToLower();
+            row.Suggestions = allIngredients
+                .Where(i => i.IngredientName.ToLower().Contains(term))
+                .Take(8)
+                .ToList();
+            row.ShowDropdown = true;
+        }
+        else
+        {
+            row.Suggestions.Clear();
+            row.ShowDropdown = false;
+        }
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private void SelectIngredient(IngredientRow row, Ingredient ingredient)
+    {
+        row.IngredientId = ingredient.IngredientId;
+        row.IngredientName = ingredient.IngredientName;
+        row.ShowDropdown = false;
+        row.Suggestions.Clear();
+        StateHasChanged();
+    }
+
+    private void AddNewIngredientToRow(IngredientRow row)
+    {
+        // Name stays, IngredientId stays null — will be created on save
+        row.ShowDropdown = false;
+        row.Suggestions.Clear();
+        StateHasChanged();
+    }
+
+    // ─── Instruction Row Helpers ─────────────────────────────────────────────
+
+    private void AddInstructionRow() => instructionRows.Add(new InstructionRow());
+    private void RemoveInstructionRow(int idx) { if (instructionRows.Count > 1) instructionRows.RemoveAt(idx); }
+
+    // ─── Rating ─────────────────────────────────────────────────────────────
+
+    private void SetRating(int stars) => recipeModel.Rating = recipeModel.Rating == stars ? (decimal?)null : stars;
+
+    // ─── Local Row Models ─────────────────────────────────────────────────────
+
+    private class IngredientRow
+    {
+        public int? IngredientId { get; set; }
+        public string IngredientName { get; set; } = string.Empty;
+        public string Quantity { get; set; } = string.Empty;
+        public int? UnitTypeId { get; set; }
+        public bool ShowDropdown { get; set; } = false;
+        public List<Ingredient> Suggestions { get; set; } = new();
+        public int ExistingRecipeIngredientId { get; set; }
+    }
+
+    private class InstructionRow
+    {
+        public string InstructionText { get; set; } = string.Empty;
+        public string IconCode { get; set; } = string.Empty;
+    }
+}

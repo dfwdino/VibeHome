@@ -58,6 +58,14 @@ builder.Services.AddHttpClient<IWorkoutLocationService, WorkoutLocationHttpServi
 builder.Services.AddHttpClient<IJournalEntryService, JournalEntryHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IReportService, ReportHttpService>(configureApiClient);
 
+// Recipe Domain HttpClients
+builder.Services.AddHttpClient<IRecipeService, RecipeHttpService>(configureApiClient);
+builder.Services.AddHttpClient<IIngredientService, IngredientHttpService>(configureApiClient);
+builder.Services.AddHttpClient<IUnitTypeService, UnitTypeHttpService>(configureApiClient);
+builder.Services.AddHttpClient<IRecipeIngredientService, RecipeIngredientHttpService>(configureApiClient);
+builder.Services.AddHttpClient<IRecipeInstructionService, RecipeInstructionHttpService>(configureApiClient);
+builder.Services.AddHttpClient<IRecipeFavoriteService, RecipeFavoriteHttpService>(configureApiClient);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

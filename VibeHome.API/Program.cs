@@ -31,6 +31,14 @@ modelBuilder.EntitySet<WorkoutType>("WorkoutTypes");
 modelBuilder.EntitySet<CardioType>("CardioTypes");
 modelBuilder.EntitySet<WorkoutLocation>("WorkoutLocations");
 
+// Recipe Domain entity sets
+modelBuilder.EntitySet<Recipe>("Recipes");
+modelBuilder.EntitySet<Ingredient>("Ingredients");
+modelBuilder.EntitySet<UnitType>("UnitTypes");
+modelBuilder.EntitySet<RecipeIngredient>("RecipeIngredients");
+modelBuilder.EntitySet<RecipeInstruction>("RecipeInstructions");
+modelBuilder.EntitySet<RecipeFavorite>("RecipeFavorites");
+
 builder.Services.AddControllers()
     .AddOData(options => options
         .Select()
@@ -58,6 +66,14 @@ builder.Services.AddScoped<IWeeklyPaymentStatusService, WeeklyPaymentStatusServi
 builder.Services.AddScoped<IJournalEntryService, JournalEntryService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IApiKeyService, ApiKeyService>();
+
+// Recipe Domain services
+builder.Services.AddScoped<IRecipeService, RecipeService>();
+builder.Services.AddScoped<IIngredientService, IngredientService>();
+builder.Services.AddScoped<IUnitTypeService, UnitTypeService>();
+builder.Services.AddScoped<IRecipeIngredientService, RecipeIngredientService>();
+builder.Services.AddScoped<IRecipeInstructionService, RecipeInstructionService>();
+builder.Services.AddScoped<IRecipeFavoriteService, RecipeFavoriteService>();
 
 // Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();

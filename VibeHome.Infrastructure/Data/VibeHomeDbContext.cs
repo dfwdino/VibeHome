@@ -18,6 +18,14 @@ namespace VibeHome.Infrastructure.Data
         public DbSet<JournalEntry> JournalEntries { get; set; }
         public DbSet<ApiKey> ApiKeys { get; set; }
 
+        // Recipe Domain
+        public DbSet<Recipe> Recipes { get; set; }
+        public DbSet<Ingredient> Ingredients { get; set; }
+        public DbSet<UnitType> UnitTypes { get; set; }
+        public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
+        public DbSet<RecipeInstruction> RecipeInstructions { get; set; }
+        public DbSet<RecipeFavorite> RecipeFavorites { get; set; }
+
         // Workout Domain
         public DbSet<WeightTrainingSession> WeightTrainingSessions { get; set; }
         public DbSet<CardioSession> CardioSessions { get; set; }
@@ -72,6 +80,25 @@ namespace VibeHome.Infrastructure.Data
 
             modelBuilder.Entity<JournalEntry>().ToTable("Journal", "Weight");
             modelBuilder.Entity<JournalEntry>().HasKey(j => j.Id);
+
+            // Recipe Domain Schema
+            modelBuilder.Entity<Recipe>().ToTable("Recipes", "Recipe");
+            modelBuilder.Entity<Recipe>().HasKey(r => r.RecipeId);
+
+            modelBuilder.Entity<Ingredient>().ToTable("Ingredients", "Recipe");
+            modelBuilder.Entity<Ingredient>().HasKey(i => i.IngredientId);
+
+            modelBuilder.Entity<UnitType>().ToTable("UnitTypes", "Recipe");
+            modelBuilder.Entity<UnitType>().HasKey(u => u.UnitTypeId);
+
+            modelBuilder.Entity<RecipeIngredient>().ToTable("RecipeIngredients", "Recipe");
+            modelBuilder.Entity<RecipeIngredient>().HasKey(ri => ri.RecipeIngredientId);
+
+            modelBuilder.Entity<RecipeInstruction>().ToTable("RecipeInstructions", "Recipe");
+            modelBuilder.Entity<RecipeInstruction>().HasKey(ri => ri.RecipeInstructionId);
+
+            modelBuilder.Entity<RecipeFavorite>().ToTable("RecipeFavorites", "Recipe");
+            modelBuilder.Entity<RecipeFavorite>().HasKey(rf => rf.RecipeFavoriteId);
 
             base.OnModelCreating(modelBuilder);
         }

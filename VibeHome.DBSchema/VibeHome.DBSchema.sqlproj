@@ -73,6 +73,8 @@
     <Folder Include="Auto\" />
     <Folder Include="Auto\Tables\" />
     <Folder Include="Security\" />
+    <Folder Include="Recipe\" />
+    <Folder Include="Recipe\Tables\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\Receipts.sql" />
@@ -118,5 +120,12 @@
     <Build Include="Security\Auto.sql" />
     <Build Include="Shopping\Tables\ItemBrands.sql" />
     <Build Include="Security\IIS APPPOOL_No Managed Code.sql" />
+    <Build Include="Security\Recipe.sql" />
+    <Build Include="Recipe\Tables\Recipes.sql" />
+    <Build Include="Recipe\Tables\Ingredients.sql" />
+    <Build Include="Recipe\Tables\UnitTypes.sql" />
+    <Build Include="Recipe\Tables\RecipeIngredients.sql" />
+    <Build Include="Recipe\Tables\RecipeInstructions.sql" />
+    <Build Include="Recipe\Tables\RecipeFavorites.sql" />
   </ItemGroup>
 </Project>

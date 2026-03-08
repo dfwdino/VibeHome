@@ -1,0 +1,245 @@
+@using VibeHome.Application.Interfaces
+@using VibeHome.Domain.Entities
+@page "/Recipes"
+@inject IRecipeService RecipeService
+@inject IRecipeFavoriteService FavoriteService
+@inject NavigationManager NavigationManager
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">🍽️ Recipes</h3>
+    <a href="/Recipes/add" class="btn btn-success">+ Add Recipe</a>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="card mb-3 shadow-sm">
+    <div class="card-body p-3">
+        <div class="row g-2">
+            <div class="col-12 col-md-5">
+                <input type="text" class="form-control" placeholder="Search recipes..."
+                       @bind="searchTerm" @bind:event="oninput" @oninput="ApplyFilters" />
+            </div>
+            <div class="col-6 col-md-3">
+                <select class="form-select" @bind="difficultyFilter" @bind:after="ApplyFilters">
+                    <option value="">All Difficulties</option>
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="btn-group w-100" role="group">
+                    <button class="btn @(showFavoritesOnly ? "btn-warning" : "btn-outline-warning")"
+                            @onclick="ToggleFavorites">
+                         @(showFavoritesOnly ? "All Recipes" : "Favorites")
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="text-muted small mt-2">
+            Showing @filteredRecipes.Count of @allRecipes.Count recipes
+        </div>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center py-5"><div class="spinner-border text-success" role="status"></div><p class="mt-2 text-muted">Loading recipes...</p></div>
+}
+else if (!filteredRecipes.Any())
+{
+    <div class="text-center py-5 text-muted">
+        <div style="font-size:3rem;">🍽️</div>
+        <p class="mt-2">No recipes found. <a href="/Recipes/add">Add your first recipe!</a></p>
+    </div>
+}
+else
+{
+    <!-- Desktop Table -->
+    <div class="d-none d-md-block">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th class="custom-table-header">Recipe</th>
+                    <th class="custom-table-header text-center">Rating</th>
+                    <th class="custom-table-header text-center">Time</th>
+                    <th class="custom-table-header text-center">Servings</th>
+                    <th class="custom-table-header text-center">Difficulty</th>
+                    <th class="custom-table-header text-center">❤️</th>
+                    <th class="custom-table-header text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var recipe in filteredRecipes)
+                {
+                    <tr style="cursor:pointer" @onclick="@(() => NavigationManager.NavigateTo($"/Recipes/{recipe.RecipeId}"))">
+                        <td class="fw-semibold">@recipe.RecipeName</td>
+                        <td class="text-center">@RenderStars(recipe.Rating)</td>
+                        <td class="text-center text-nowrap">
+                            @if (recipe.PrepTimeMinutes.HasValue || recipe.CookTimeMinutes.HasValue)
+                            {
+                                <span>@((recipe.PrepTimeMinutes ?? 0) + (recipe.CookTimeMinutes ?? 0)) min</span>
+                            }
+                        </td>
+                        <td class="text-center">@(recipe.Servings.HasValue ? $"{recipe.Servings}" : "-")</td>
+                        <td class="text-center">
+                            @if (!string.IsNullOrEmpty(recipe.DifficultyLevel))
+                            {
+                                <span class="badge @GetDifficultyBadge(recipe.DifficultyLevel)">@recipe.DifficultyLevel</span>
+                            }
+                        </td>
+                        <td class="text-center" @onclick:stopPropagation="true">
+                            <button class="btn btn-sm @(IsFavorite(recipe.RecipeId) ? "btn-warning" : "btn-outline-warning")"
+                                    @onclick="@(async () => await ToggleFavorite(recipe.RecipeId))"
+                                    disabled="@isSubmitting" title="@(IsFavorite(recipe.RecipeId) ? "Remove favorite" : "Save to favorites")">
+                                @(IsFavorite(recipe.RecipeId) ? "❤️" : "🤍")
+                            </button>
+                        </td>
+                        <td class="text-center" @onclick:stopPropagation="true">
+                            <a href="/Recipes/edit/@recipe.RecipeId" class="btn btn-sm btn-info me-1">Edit</a>
+                            <button class="btn btn-sm btn-danger" @onclick="@(async () => await DeleteRecipe(recipe.RecipeId))" disabled="@isSubmitting">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Cards -->
+    <div class="d-block d-md-none">
+        @foreach (var recipe in filteredRecipes)
+        {
+            <div class="card mb-3 shadow-sm" style="cursor:pointer">
+                <div class="card-body p-3" @onclick="@(() => NavigationManager.NavigateTo($"/Recipes/{recipe.RecipeId}"))">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="fw-bold fs-6 flex-grow-1 pe-2">@recipe.RecipeName</div>
+                        <div @onclick:stopPropagation="true">
+                            <button class="btn btn-sm @(IsFavorite(recipe.RecipeId) ? "btn-warning" : "btn-outline-warning")"
+                                    @onclick="@(async () => await ToggleFavorite(recipe.RecipeId))"
+                                    disabled="@isSubmitting">
+                                @(IsFavorite(recipe.RecipeId) ? "❤️" : "🤍")
+                            </button>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-2 align-items-center">
+                        @if (recipe.Rating.HasValue)
+                        {
+                            <span>@RenderStars(recipe.Rating)</span>
+                        }
+                        @if (!string.IsNullOrEmpty(recipe.DifficultyLevel))
+                        {
+                            <span class="badge @GetDifficultyBadge(recipe.DifficultyLevel)">@recipe.DifficultyLevel</span>
+                        }
+                        @if (recipe.PrepTimeMinutes.HasValue || recipe.CookTimeMinutes.HasValue)
+                        {
+                            <span class="text-muted small">⏱ @((recipe.PrepTimeMinutes ?? 0) + (recipe.CookTimeMinutes ?? 0)) min</span>
+                        }
+                        @if (recipe.Servings.HasValue)
+                        {
+                            <span class="text-muted small">🍽 @recipe.Servings servings</span>
+                        }
+                    </div>
+                </div>
+                <div class="card-footer p-2 d-flex gap-2" @onclick:stopPropagation="true">
+                    <a href="/Recipes/@recipe.RecipeId" class="btn btn-sm btn-outline-primary flex-fill">View</a>
+                    <a href="/Recipes/edit/@recipe.RecipeId" class="btn btn-sm btn-info flex-fill">Edit</a>
+                    <button class="btn btn-sm btn-danger flex-fill" @onclick="@(async () => await DeleteRecipe(recipe.RecipeId))" disabled="@isSubmitting">Delete</button>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Recipe> allRecipes = new();
+    private List<Recipe> filteredRecipes = new();
+    private List<RecipeFavorite> allFavorites = new();
+
+    private string searchTerm = string.Empty;
+    private string difficultyFilter = string.Empty;
+    private bool showFavoritesOnly = false;
+    private bool isLoading = true;
+    private bool isSubmitting = false;
+
+    // TODO: Replace with authenticated UserId when auth is enabled
+    // private const bool UseAuthentication = false;
+    // private int? currentUserId = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        var recipesTask = RecipeService.GetAllAsync();
+        var favoritesTask = FavoriteService.GetAllAsync();
+        await Task.WhenAll(recipesTask, favoritesTask);
+        allRecipes = (await recipesTask).Where(r => !r.IsDeleted).OrderBy(r => r.RecipeName).ToList();
+        allFavorites = (await favoritesTask).Where(f => !f.IsDeleted).ToList();
+        ApplyFilters();
+        isLoading = false;
+    }
+
+    private void ApplyFilters()
+    {
+        var q = allRecipes.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+            q = q.Where(r => r.RecipeName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        if (!string.IsNullOrWhiteSpace(difficultyFilter))
+            q = q.Where(r => r.DifficultyLevel == difficultyFilter);
+        if (showFavoritesOnly)
+            q = q.Where(r => IsFavorite(r.RecipeId));
+        filteredRecipes = q.ToList();
+        StateHasChanged();
+    }
+
+    private void ToggleFavorites() { showFavoritesOnly = !showFavoritesOnly; ApplyFilters(); }
+
+    private bool IsFavorite(int recipeId) => allFavorites.Any(f => f.RecipeId == recipeId && !f.IsDeleted);
+
+    private async Task ToggleFavorite(int recipeId)
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        try
+        {
+            var existing = allFavorites.FirstOrDefault(f => f.RecipeId == recipeId && !f.IsDeleted);
+            if (existing != null)
+            {
+                await FavoriteService.DeleteAsync(existing.RecipeFavoriteId);
+                allFavorites.RemoveAll(f => f.RecipeId == recipeId && !f.IsDeleted);
+            }
+            else
+            {
+                await FavoriteService.AddAsync(new RecipeFavorite { RecipeId = recipeId, UserId = null });
+                allFavorites = (await FavoriteService.GetAllAsync()).Where(f => !f.IsDeleted).ToList();
+            }
+            ApplyFilters();
+        }
+        finally { isSubmitting = false; }
+    }
+
+    private async Task DeleteRecipe(int id)
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        try
+        {
+            await RecipeService.DeleteAsync(id);
+            allRecipes.RemoveAll(r => r.RecipeId == id);
+            ApplyFilters();
+        }
+        finally { isSubmitting = false; }
+    }
+
+    private string RenderStars(decimal? rating)
+    {
+        if (!rating.HasValue) return "—";
+        var filled = (int)Math.Round(rating.Value);
+        return string.Concat(Enumerable.Repeat("★", filled)) + string.Concat(Enumerable.Repeat("☆", 5 - filled));
+    }
+
+    private string GetDifficultyBadge(string? level) => level switch
+    {
+        "Easy" => "bg-success",
+        "Medium" => "bg-warning text-dark",
+        "Hard" => "bg-danger",
+        _ => "bg-secondary"
+    };
+}
