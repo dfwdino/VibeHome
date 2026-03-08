@@ -25,14 +25,16 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task AddAsync(UnitType unitType)
         {
+            unitType.CreatedAt = DateTime.Now;
+            unitType.ModifiedAt = DateTime.Now;
             var response = await _httpClient.PostAsJsonAsync(_endpoint, unitType);
             response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateAsync(UnitType unitType)
         {
-            unitType.ModifiedAt = DateTime.UtcNow;
-            unitType.CreatedAt = DateTime.UtcNow;
+            unitType.ModifiedAt = DateTime.Now;
+            unitType.CreatedAt = DateTime.Now;
             var response = await _httpClient.PutAsJsonAsync($"{_endpoint}({unitType.UnitTypeId})", unitType);
             response.EnsureSuccessStatusCode();
         }

@@ -25,6 +25,8 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task<Recipe> AddAndGetAsync(Recipe recipe)
         {
+            recipe.CreatedAt = DateTime.Now;
+            recipe.ModifiedAt = DateTime.Now;
             var response = await _httpClient.PostAsJsonAsync(_endpoint, recipe);
             response.EnsureSuccessStatusCode();
             var created = await response.Content.ReadFromJsonAsync<Recipe>();
@@ -33,14 +35,16 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task AddAsync(Recipe recipe)
         {
+            recipe.CreatedAt = DateTime.Now;
+            recipe.ModifiedAt = DateTime.Now;
             var response = await _httpClient.PostAsJsonAsync(_endpoint, recipe);
             response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateAsync(Recipe recipe)
         {
-            recipe.ModifiedAt = DateTime.UtcNow;
-            recipe.CreatedAt = DateTime.UtcNow;
+            recipe.ModifiedAt = DateTime.Now;
+            recipe.CreatedAt = DateTime.Now;
             var response = await _httpClient.PutAsJsonAsync($"{_endpoint}({recipe.RecipeId})", recipe);
             response.EnsureSuccessStatusCode();
         }

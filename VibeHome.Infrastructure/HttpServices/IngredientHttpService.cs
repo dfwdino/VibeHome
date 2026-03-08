@@ -25,6 +25,8 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task<Ingredient> AddAndGetAsync(Ingredient ingredient)
         {
+            ingredient.CreatedAt = DateTime.Now;
+            ingredient.ModifiedAt = DateTime.Now;
             var response = await _httpClient.PostAsJsonAsync(_endpoint, ingredient);
             response.EnsureSuccessStatusCode();
             var created = await response.Content.ReadFromJsonAsync<Ingredient>();
@@ -33,14 +35,16 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task AddAsync(Ingredient ingredient)
         {
+            ingredient.CreatedAt = DateTime.Now;
+            ingredient.ModifiedAt = DateTime.Now;
             var response = await _httpClient.PostAsJsonAsync(_endpoint, ingredient);
             response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateAsync(Ingredient ingredient)
         {
-            ingredient.ModifiedAt = DateTime.UtcNow;
-            ingredient.CreatedAt = DateTime.UtcNow;
+            ingredient.ModifiedAt = DateTime.Now;
+            ingredient.CreatedAt = DateTime.Now;
             var response = await _httpClient.PutAsJsonAsync($"{_endpoint}({ingredient.IngredientId})", ingredient);
             response.EnsureSuccessStatusCode();
         }

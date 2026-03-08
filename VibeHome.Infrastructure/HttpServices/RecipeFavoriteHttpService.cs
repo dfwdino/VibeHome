@@ -25,14 +25,16 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task AddAsync(RecipeFavorite recipeFavorite)
         {
+            recipeFavorite.CreatedAt = DateTime.Now;
+            recipeFavorite.ModifiedAt = DateTime.Now;
             var response = await _httpClient.PostAsJsonAsync(_endpoint, recipeFavorite);
             response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateAsync(RecipeFavorite recipeFavorite)
         {
-            recipeFavorite.ModifiedAt = DateTime.UtcNow;
-            recipeFavorite.CreatedAt = DateTime.UtcNow;
+            recipeFavorite.ModifiedAt = DateTime.Now;
+            recipeFavorite.CreatedAt = DateTime.Now;
             var response = await _httpClient.PutAsJsonAsync($"{_endpoint}({recipeFavorite.RecipeFavoriteId})", recipeFavorite);
             response.EnsureSuccessStatusCode();
         }
