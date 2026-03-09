@@ -27,7 +27,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, VibeHome.UI.CustomAuthen
 
 // Configure HttpClient for API calls
 string apiBaseUrl = string.Empty;
-#if DEBUGA
+#if DEBUG
     apiBaseUrl = builder.Configuration["VibeHomeApi:UseLocal"] ?? "";
 #else
     apiBaseUrl = builder.Configuration["VibeHomeApi:BaseUrl"] ?? "";

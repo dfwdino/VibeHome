@@ -26,27 +26,30 @@
             <DataAnnotationsValidator />
             <ValidationSummary class="alert alert-danger" />
 
-            <!-- Star Rating -->
-            <div class="card shadow-sm mb-3">
-                <div class="card-body p-3">
-                    <label class="form-label fw-semibold">Rating</label>
-                    <div class="d-flex gap-1" style="font-size:2rem; cursor:pointer;">
-                        @for (int s = 1; s <= 5; s++)
-                        {
-                            int star = s;
-                            <span @onclick="@(() => SetRating(star))"
-                                  style="color: @(recipeModel.Rating >= star ? "#f5a623" : "#ccc"); user-select:none; transition:color .15s;">
-                                ★
-                            </span>
-                        }
-                        @if (recipeModel.Rating.HasValue)
-                        {
-                            <button type="button" class="btn btn-sm btn-link text-muted p-0 ms-2 align-self-center"
-                                    @onclick="@(() => recipeModel.Rating = null)">clear</button>
-                        }
+            <!-- Star Rating (edit only) -->
+            @if (isEdit)
+            {
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body p-3">
+                        <label class="form-label fw-semibold">Rating</label>
+                        <div class="d-flex gap-1" style="font-size:2rem; cursor:pointer;">
+                            @for (int s = 1; s <= 5; s++)
+                            {
+                                int star = s;
+                                <span @onclick="@(() => SetRating(star))"
+                                      style="color: @(recipeModel.Rating >= star ? "#f5a623" : "#ccc"); user-select:none; transition:color .15s;">
+                                    ★
+                                </span>
+                            }
+                            @if (recipeModel.Rating.HasValue)
+                            {
+                                <button type="button" class="btn btn-sm btn-link text-muted p-0 ms-2 align-self-center"
+                                        @onclick="@(() => recipeModel.Rating = null)">clear</button>
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
 
             <!-- Recipe Name + Details -->
             <div class="card shadow-sm mb-3">

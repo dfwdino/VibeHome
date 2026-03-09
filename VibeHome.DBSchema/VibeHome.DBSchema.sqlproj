@@ -127,5 +127,6 @@
     <Build Include="Recipe\Tables\RecipeIngredients.sql" />
     <Build Include="Recipe\Tables\RecipeInstructions.sql" />
     <Build Include="Recipe\Tables\RecipeFavorites.sql" />
+    <Build Include="dbo\Tables\Log.sql" />
   </ItemGroup>
 </Project>
