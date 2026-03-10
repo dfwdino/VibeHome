@@ -1,5 +1,6 @@
 @using VibeHome.Application.Interfaces
 @using VibeHome.Domain.Entities
+@using VibeHome.Domain.Entities.Recipes
 @page "/Recipes/add"
 @page "/Recipes/edit/{Id:int}"
 @inject IRecipeService RecipeService
@@ -12,7 +13,7 @@
 <div style="max-width:720px; margin:0 auto;" class="px-1 pb-5">
 
     <div class="d-flex align-items-center gap-2 mb-3">
-        <a href="/Recipes" class="btn btn-sm btn-outline-secondary">← Back</a>
+        <a href="Recipes" class="btn btn-sm btn-outline-secondary">← Back</a>
         <h3 class="mb-0">@(isEdit ? "Edit Recipe" : "Add a New Recipe")</h3>
     </div>
 
@@ -248,7 +249,7 @@
                     }
                     @(isEdit ? "Update Recipe" : "Save Recipe")
                 </button>
-                <a href="/Recipes" class="btn btn-outline-secondary btn-lg flex-fill">Cancel</a>
+                <a href="Recipes" class="btn btn-outline-secondary btn-lg flex-fill">Cancel</a>
             </div>
 
         </EditForm>
@@ -386,7 +387,7 @@
                 {
                     RecipeId = recipeId,
                     IngredientId = ingredientId,
-                    IngredientName = row.IngredientName.Trim(),
+                    IngredientName = row.IngredientName.Trim().ToTitleCase(),
                     Quantity = string.IsNullOrWhiteSpace(row.Quantity) ? null : row.Quantity.Trim(),
                     UnitTypeId = row.UnitTypeId == 0 ? null : row.UnitTypeId,
                     SortOrder = i
@@ -408,7 +409,7 @@
                 });
             }
 
-            NavigationManager.NavigateTo($"/Recipes/{recipeId}");
+            NavigationManager.NavigateTo($"Recipes/{recipeId}");
         }
         finally { isSubmitting = false; }
     }

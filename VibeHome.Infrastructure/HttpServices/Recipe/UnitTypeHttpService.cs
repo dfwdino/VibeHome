@@ -1,8 +1,8 @@
 using System.Net.Http.Json;
 using VibeHome.Application.Interfaces;
-using VibeHome.Domain.Entities;
+using VibeHome.Domain.Entities.Recipes;
 
-namespace VibeHome.Infrastructure.HttpServices
+namespace VibeHome.Infrastructure.HttpServices.Recipes
 {
     public class UnitTypeHttpService : IUnitTypeService
     {
@@ -13,7 +13,7 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task<IEnumerable<UnitType>> GetAllAsync()
         {
-            var response = await _httpClient.GetFromJsonAsync<ODataResponse<UnitType>>(_endpoint);
+            var response = await _httpClient.GetFromJsonAsync<ODataResponse<UnitType>>($"{_endpoint}?$orderby=UnitName asc"); 
             return response?.Value ?? Enumerable.Empty<UnitType>();
         }
 

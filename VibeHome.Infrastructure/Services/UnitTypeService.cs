@@ -1,5 +1,5 @@
 using VibeHome.Application.Interfaces;
-using VibeHome.Domain.Entities;
+using VibeHome.Domain.Entities.Recipes;
 
 namespace VibeHome.Infrastructure.Services
 {

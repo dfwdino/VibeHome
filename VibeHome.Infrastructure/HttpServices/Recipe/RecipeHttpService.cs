@@ -1,8 +1,9 @@
 using System.Net.Http.Json;
 using VibeHome.Application.Interfaces;
-using VibeHome.Domain.Entities;
+using VibeHome.Domain.Entities.Recipes;
 
-namespace VibeHome.Infrastructure.HttpServices
+
+namespace VibeHome.Infrastructure.HttpServices.Recipes
 {
     public class RecipeHttpService : IRecipeService
     {

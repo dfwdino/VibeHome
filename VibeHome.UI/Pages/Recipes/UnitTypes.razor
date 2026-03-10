@@ -1,5 +1,6 @@
 @using VibeHome.Application.Interfaces
 @using VibeHome.Domain.Entities
+@using VibeHome.Domain.Entities.Recipes
 @using VibeHome.UI.Shared
 @page "/Recipes/unit-types"
 @inject IUnitTypeService UnitTypeService
@@ -118,8 +119,11 @@ else
         isSubmitting = true;
         try
         {
-            if (unitTypeModel.UnitTypeId == 0)
+            if (unitTypeModel.UnitTypeId == 0){
+                unitTypeModel.UnitName = unitTypeModel.UnitName.ToTitleCase();
+          
                 await UnitTypeService.AddAsync(unitTypeModel);
+            }
             else
                 await UnitTypeService.UpdateAsync(unitTypeModel);
             await LoadUnitTypes();

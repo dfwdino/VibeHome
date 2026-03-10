@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using VibeHome.Application.Interfaces;
-using VibeHome.Domain.Entities;
+using VibeHome.Domain.Entities.Recipes;
 
 namespace VibeHome.API.Controllers
 {

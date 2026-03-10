@@ -7,6 +7,8 @@ using VibeHome.Infrastructure.Data;
 using VibeHome.Infrastructure.Repositories;
 using VibeHome.Infrastructure.Services;
 using VibeHome.API.Middleware;
+using VibeHome.Infrastructure.Services.Recipes;
+using VibeHome.Domain.Entities.Recipes;
 
 var builder = WebApplication.CreateBuilder(args);
 

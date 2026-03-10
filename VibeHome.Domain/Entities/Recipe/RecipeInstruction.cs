@@ -1,4 +1,4 @@
-namespace VibeHome.Domain.Entities
+namespace VibeHome.Domain.Entities.Recipes
 {
     public class RecipeInstruction
     {

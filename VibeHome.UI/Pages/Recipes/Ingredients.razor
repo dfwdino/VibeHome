@@ -126,7 +126,10 @@ else
         try
         {
             if (ingredientModel.IngredientId == 0)
+            {
+                ingredientModel.IngredientName = ingredientModel.IngredientName.ToTitleCase();
                 await IngredientService.AddAsync(ingredientModel);
+            }
             else
                 await IngredientService.UpdateAsync(ingredientModel);
             await LoadIngredients();

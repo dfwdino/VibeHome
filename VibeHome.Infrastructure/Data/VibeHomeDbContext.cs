@@ -1,6 +1,7 @@
 using System;
 using VibeHome.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using VibeHome.Domain.Entities.Recipes;
 
 namespace VibeHome.Infrastructure.Data
 {
@@ -99,6 +100,28 @@ namespace VibeHome.Infrastructure.Data
 
             modelBuilder.Entity<RecipeFavorite>().ToTable("RecipeFavorites", "Recipe");
             modelBuilder.Entity<RecipeFavorite>().HasKey(rf => rf.RecipeFavoriteId);
+
+            // Recipe navigation relationships
+            modelBuilder.Entity<Recipe>()
+                .HasMany(r => r.RecipeIngredients)
+                .WithOne()
+                .HasForeignKey(ri => ri.RecipeId);
+
+            modelBuilder.Entity<Recipe>()
+                .HasMany(r => r.RecipeInstructions)
+                .WithOne()
+                .HasForeignKey(ri => ri.RecipeId);
+
+            modelBuilder.Entity<Recipe>()
+                .HasMany(r => r.RecipeFavorites)
+                .WithOne()
+                .HasForeignKey(rf => rf.RecipeId);
+
+            modelBuilder.Entity<RecipeIngredient>()
+                .HasOne(ri => ri.UnitType)
+                .WithMany()
+                .HasForeignKey(ri => ri.UnitTypeId)
+                .IsRequired(false);
 
             base.OnModelCreating(modelBuilder);
         }

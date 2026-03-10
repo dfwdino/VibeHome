@@ -2,6 +2,7 @@ using VibeHome.Application.Interfaces;
 using VibeHome.Infrastructure.HttpServices;
 using Microsoft.AspNetCore.Components.Authorization;
 using VibeHome.UI.Data;
+using VibeHome.Infrastructure.HttpServices.Recipes;
 
 var builder = WebApplication.CreateBuilder(args);
 

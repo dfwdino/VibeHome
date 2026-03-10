@@ -1,4 +1,4 @@
-using VibeHome.Domain.Entities;
+using VibeHome.Domain.Entities.Recipes;
 
 namespace VibeHome.Application.Interfaces
 {
@@ -6,6 +6,7 @@ namespace VibeHome.Application.Interfaces
     {
         Task<IEnumerable<RecipeFavorite>> GetAllAsync();
         Task<RecipeFavorite?> GetByIdAsync(int id);
+        Task<RecipeFavorite?> GetByRecipeIdAsync(int recipeId);
         Task AddAsync(RecipeFavorite recipeFavorite);
         Task UpdateAsync(RecipeFavorite recipeFavorite);
         Task DeleteAsync(int id);

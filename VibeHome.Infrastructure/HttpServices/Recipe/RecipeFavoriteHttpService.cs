@@ -1,8 +1,8 @@
 using System.Net.Http.Json;
 using VibeHome.Application.Interfaces;
-using VibeHome.Domain.Entities;
+using VibeHome.Domain.Entities.Recipes;
 
-namespace VibeHome.Infrastructure.HttpServices
+namespace VibeHome.Infrastructure.HttpServices.Recipes
 {
     public class RecipeFavoriteHttpService : IRecipeFavoriteService
     {
@@ -21,6 +21,13 @@ namespace VibeHome.Infrastructure.HttpServices
         {
             try { return await _httpClient.GetFromJsonAsync<RecipeFavorite>($"{_endpoint}({id})"); }
             catch (HttpRequestException) { return null; }
+        }
+
+        public async Task<RecipeFavorite?> GetByRecipeIdAsync(int recipeId)
+        {
+            var response = await _httpClient.GetFromJsonAsync<ODataResponse<RecipeFavorite>>(
+                $"{_endpoint}?$filter=RecipeId eq {recipeId} and IsDeleted eq false&$orderby=CreatedAt desc&$top=1");
+            return response?.Value?.FirstOrDefault();
         }
 
         public async Task AddAsync(RecipeFavorite recipeFavorite)

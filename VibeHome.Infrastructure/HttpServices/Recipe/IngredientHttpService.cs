@@ -2,7 +2,7 @@ using System.Net.Http.Json;
 using VibeHome.Application.Interfaces;
 using VibeHome.Domain.Entities;
 
-namespace VibeHome.Infrastructure.HttpServices
+namespace VibeHome.Infrastructure.HttpServices.Recipes
 {
     public class IngredientHttpService : IIngredientService
     {
@@ -13,7 +13,7 @@ namespace VibeHome.Infrastructure.HttpServices
 
         public async Task<IEnumerable<Ingredient>> GetAllAsync()
         {
-            var response = await _httpClient.GetFromJsonAsync<ODataResponse<Ingredient>>(_endpoint);
+            var response = await _httpClient.GetFromJsonAsync<ODataResponse<Ingredient>>($"{_endpoint}?$orderby=IngredientName asc");
             return response?.Value ?? Enumerable.Empty<Ingredient>();
         }
 

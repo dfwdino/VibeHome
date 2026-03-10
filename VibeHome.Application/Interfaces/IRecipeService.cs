@@ -1,4 +1,4 @@
-using VibeHome.Domain.Entities;
+using VibeHome.Domain.Entities.Recipes;
 
 namespace VibeHome.Application.Interfaces
 {

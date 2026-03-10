@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using VibeHome.Application.Interfaces;
-using VibeHome.Domain.Entities;
+using VibeHome.Domain.Entities.Recipes;
 
 namespace VibeHome.API.Controllers
 {
@@ -22,12 +22,11 @@ namespace VibeHome.API.Controllers
             return Ok(recipes);
         }
 
-        [EnableQuery]
         public async Task<IActionResult> Get(int key)
         {
             var recipe = await _recipeService.GetByIdAsync(key);
             if (recipe == null) return NotFound();
-            return Ok(recipe);
+            return new JsonResult(recipe); // Bypasses OData formatter, uses System.Text.Json so nav props are included
         }
 
         public async Task<IActionResult> Post([FromBody] Recipe recipe)

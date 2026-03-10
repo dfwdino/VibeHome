@@ -1,9 +1,8 @@
 @using VibeHome.Application.Interfaces
 @using VibeHome.Domain.Entities
+@using VibeHome.Domain.Entities.Recipes
 @page "/Recipes/{Id:int}"
 @inject IRecipeService RecipeService
-@inject IRecipeIngredientService RecipeIngredientService
-@inject IRecipeInstructionService RecipeInstructionService
 @inject IRecipeFavoriteService FavoriteService
 @inject NavigationManager NavigationManager
 
@@ -75,14 +74,14 @@ else
                 <div class="card shadow-sm h-100">
                     <div class="card-header fw-bold bg-light">INGREDIENTS</div>
                     <div class="card-body">
-                        @if (!ingredients.Any())
+                        @if (!recipe.RecipeIngredients.Any())
                         {
                             <p class="text-muted">No ingredients listed.</p>
                         }
                         else
                         {
                             <ul class="list-unstyled mb-0">
-                                @foreach (var ing in ingredients)
+                                @foreach (var ing in recipe.RecipeIngredients.OrderBy(i => i.SortOrder))
                                 {
                                     <li class="py-1 border-bottom d-flex align-items-center gap-2">
                                         <input type="checkbox" class="form-check-input mt-0"
@@ -93,11 +92,11 @@ else
                                             {
                                                 <strong>@ing.Quantity</strong>
                                             }
-                                            @if (ing.UnitTypeId.HasValue && unitTypeMap.ContainsKey(ing.UnitTypeId.Value))
+                                            @if (ing.UnitType != null)
                                             {
-                                                <span> @unitTypeMap[ing.UnitTypeId.Value]</span>
+                                                <span> - @(ing.UnitType.Abbreviation ?? ing.UnitType.UnitName)</span>
                                             }
-                                            <span> @ing.IngredientName</span>
+                                            <span> -  @ing.IngredientName</span>
                                         </span>
                                     </li>
                                 }
@@ -112,14 +111,14 @@ else
                 <div class="card shadow-sm">
                     <div class="card-header fw-bold bg-light">INSTRUCTIONS</div>
                     <div class="card-body p-2">
-                        @if (!instructions.Any())
+                        @if (!recipe.RecipeInstructions.Any())
                         {
                             <p class="text-muted p-2">No instructions listed.</p>
                         }
                         else
                         {
                             <ol class="mb-0 ps-3">
-                                @foreach (var step in instructions)
+                                @foreach (var step in recipe.RecipeInstructions.OrderBy(i => i.StepNumber))
                                 {
                                     <li class="py-2 border-bottom">
                                         <div class="d-flex justify-content-between align-items-start gap-2">
@@ -227,10 +226,7 @@ else
     [Parameter] public int Id { get; set; }
 
     private Recipe? recipe;
-    private List<RecipeIngredient> ingredients = new();
-    private List<RecipeInstruction> instructions = new();
     private HashSet<int> checkedIngredients = new();
-    private Dictionary<int, string> unitTypeMap = new();
     private bool isFavorite = false;
     private RecipeFavorite? currentFavorite;
     private bool isLoading = true;
@@ -243,25 +239,10 @@ else
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
-        var recipeTask = RecipeService.GetByIdAsync(Id);
-        var ingredientsTask = RecipeIngredientService.GetByRecipeIdAsync(Id);
-        var instructionsTask = RecipeInstructionService.GetByRecipeIdAsync(Id);
-        var favoritesTask = FavoriteService.GetAllAsync();
 
-        await Task.WhenAll(recipeTask, ingredientsTask, instructionsTask, favoritesTask);
-
-        recipe = await recipeTask;
-        ingredients = (await ingredientsTask).ToList();
-        instructions = (await instructionsTask).ToList();
-
-        var allFavorites = (await favoritesTask).Where(f => !f.IsDeleted).ToList();
-        currentFavorite = allFavorites.FirstOrDefault(f => f.RecipeId == Id);
+        recipe = await RecipeService.GetByIdAsync(Id);
+        currentFavorite = recipe?.RecipeFavorites.FirstOrDefault();
         isFavorite = currentFavorite != null;
-
-        // Build unit type display map from ingredients
-        var unitTypeIds = ingredients.Where(i => i.UnitTypeId.HasValue).Select(i => i.UnitTypeId!.Value).Distinct();
-        // Note: Unit abbreviations are stored inline in IngredientName for display simplicity
-        // Full unit type lookup can be added here if needed
 
         isLoading = false;
     }
@@ -288,8 +269,8 @@ else
             {
                 var fav = new RecipeFavorite { RecipeId = Id, UserId = null };
                 await FavoriteService.AddAsync(fav);
-                var all = await FavoriteService.GetAllAsync();
-                currentFavorite = all.Where(f => !f.IsDeleted && f.RecipeId == Id).OrderByDescending(f => f.CreatedAt).FirstOrDefault();
+                recipe = await RecipeService.GetByIdAsync(Id);
+                currentFavorite = recipe?.RecipeFavorites.FirstOrDefault();
                 isFavorite = true;
             }
         }

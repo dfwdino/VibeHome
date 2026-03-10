@@ -1,4 +1,4 @@
-namespace VibeHome.Domain.Entities
+namespace VibeHome.Domain.Entities.Recipes
 {
     public class RecipeIngredient
     {
@@ -12,5 +12,7 @@ namespace VibeHome.Domain.Entities
         public bool IsDeleted { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime ModifiedAt { get; set; }
+
+        public UnitType? UnitType { get; set; }
     }
 }

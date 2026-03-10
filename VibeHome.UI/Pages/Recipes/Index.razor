@@ -1,5 +1,6 @@
 @using VibeHome.Application.Interfaces
 @using VibeHome.Domain.Entities
+@using VibeHome.Domain.Entities.Recipes
 @page "/Recipes"
 @inject IRecipeService RecipeService
 @inject IRecipeFavoriteService FavoriteService
@@ -7,7 +8,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">🍽️ Recipes</h3>
-    <a href="/Recipes/add" class="btn btn-success">+ Add Recipe</a>
+    <a href="Recipes/add" class="btn btn-success">+ Add Recipe</a>
 </div>
 
 <!-- Search & Filter Bar -->
@@ -50,7 +51,7 @@ else if (!filteredRecipes.Any())
 {
     <div class="text-center py-5 text-muted">
         <div style="font-size:3rem;">🍽️</div>
-        <p class="mt-2">No recipes found. <a href="/Recipes/add">Add your first recipe!</a></p>
+        <p class="mt-2">No recipes found. <a href="Recipes/add">Add your first recipe!</a></p>
     </div>
 }
 else
