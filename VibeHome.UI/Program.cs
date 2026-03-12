@@ -26,9 +26,9 @@ builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<VibeHome.UI.Shared.NotificationService>();
 builder.Services.AddScoped<AuthenticationStateProvider, VibeHome.UI.CustomAuthenticationStateProvider>();
 
-// Configure HttpClient for API calls
+// Configure HttpClient for API calls for local or production for testing or not
 string apiBaseUrl = string.Empty;
-#if DEBUG
+#if Local
     apiBaseUrl = builder.Configuration["VibeHomeApi:UseLocal"] ?? "";
 #else
     apiBaseUrl = builder.Configuration["VibeHomeApi:BaseUrl"] ?? "";
@@ -45,27 +45,37 @@ Action<HttpClient> configureApiClient = client =>
 };
 
 // Register typed HttpClients for all services
+#region Chore Domain
 builder.Services.AddHttpClient<IChoreItemService, ChoreItemHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IChoreCompletionService, ChoreCompletionHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IKidService, KidHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IKidsChoreLocationService, KidsChoreLocationHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IUserService, UserHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IWeeklyPaymentStatusService, WeeklyPaymentStatusHttpService>(configureApiClient);
+#endregion End Chore Domain
+
+#region Workout Domain
 builder.Services.AddHttpClient<ICardioSessionService, CardioSessionHttpService>(configureApiClient);
 builder.Services.AddHttpClient<ICardioTypeService, CardioTypeHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IWeightTrainingSessionService, WeightTrainingSessionHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IWorkoutTypeService, WorkoutTypeHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IWorkoutLocationService, WorkoutLocationHttpService>(configureApiClient);
-builder.Services.AddHttpClient<IJournalEntryService, JournalEntryHttpService>(configureApiClient);
-builder.Services.AddHttpClient<IReportService, ReportHttpService>(configureApiClient);
+#endregion End Workout Domain
 
+#region Weight Journal Domain
+builder.Services.AddHttpClient<IJournalEntryService, JournalEntryHttpService>(configureApiClient);
+#endregion End Weight Journal Domain
+
+#region Recipe
 // Recipe Domain HttpClients
+builder.Services.AddHttpClient<IReportService, ReportHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IRecipeService, RecipeHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IIngredientService, IngredientHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IUnitTypeService, UnitTypeHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IRecipeIngredientService, RecipeIngredientHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IRecipeInstructionService, RecipeInstructionHttpService>(configureApiClient);
 builder.Services.AddHttpClient<IRecipeFavoriteService, RecipeFavoriteHttpService>(configureApiClient);
+#endregion End Recipe
 
 var app = builder.Build();
 
