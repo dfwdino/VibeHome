@@ -76,7 +76,7 @@ else if (ShowForm)
                 <ValidationSummary />
                 <div class="mb-3">
                     <label for="pounds" class="form-label">Weight (lbs)</label>
-                    <InputNumber id="pounds" class="form-control" @bind-Value="CurrentEntry.Pounds" step="0.01" />
+                    <InputNumber id="pounds" class="form-control" @bind-Value="CurrentEntry.Pounds" @onclick="@(() => ClearValue(() => CurrentEntry.Pounds = 0, CurrentEntry.Pounds))" step="0.01" />
                 </div>
                 <div class="mb-3">
                     <label for="waist" class="form-label">Waist Size (inches)</label>
@@ -170,9 +170,11 @@ else if (ShowForm)
         EditEntry = new JournalEntry();
     }
 
-    private void ClearValue()
+    ///TODO: Need to make numbers string or use DOT.
+    private void ClearValue(Action clearAction, decimal currentValue)
     {
-
+        if (currentValue.Equals(0))
+            clearAction();
     }
 
     private async Task HandleSubmit()

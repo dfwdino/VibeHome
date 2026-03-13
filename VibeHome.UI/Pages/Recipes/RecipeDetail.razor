@@ -12,7 +12,7 @@
 }
 else if (recipe == null)
 {
-    <div class="alert alert-warning">Recipe not found. <a href="/Recipes">Back to Recipes</a></div>
+    <div class="alert alert-warning">Recipe not found. <a href="Recipes">Back to Recipes</a></div>
 }
 else
 {
@@ -20,7 +20,7 @@ else
 
         <!-- Header -->
         <div class="mb-3">
-            <a href="/Recipes" class="btn btn-sm btn-outline-secondary mb-3">← Back</a>
+            <a href="Recipes" class="btn btn-sm btn-outline-secondary mb-3">← Back</a>
             <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                 <h2 class="mb-1 fw-bold">@recipe.RecipeName</h2>
                 <div class="d-flex gap-2 flex-wrap">
@@ -29,7 +29,7 @@ else
                             title="@(isFavorite ? "Remove from Favorites" : "Save to Favorites")">
                         @(isFavorite ? "❤️ Saved" : "🤍 Save to Favorites")
                     </button>
-                    <a href="/Recipes/edit/@recipe.RecipeId" class="btn btn-outline-primary">✏️ Edit</a>
+                    <a href="Recipes/edit/@recipe.RecipeId" class="btn btn-outline-primary">✏️ Edit</a>
                 </div>
             </div>
 
@@ -217,7 +217,7 @@ else
         }
 
         <div class="mt-4 pb-4">
-            <a href="/Recipes" class="btn btn-outline-secondary">← Back to Recipes</a>
+            <a href="Recipes" class="btn btn-outline-secondary">← Back to Recipes</a>
         </div>
     </div>
 }
