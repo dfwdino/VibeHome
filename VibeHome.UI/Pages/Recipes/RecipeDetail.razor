@@ -2,6 +2,7 @@
 @using VibeHome.Domain.Entities
 @using VibeHome.Domain.Entities.Recipes
 @page "/Recipes/{Id:int}"
+@attribute [Authorize(Roles = "recipes")]
 @inject IRecipeService RecipeService
 @inject IRecipeFavoriteService FavoriteService
 @inject NavigationManager NavigationManager

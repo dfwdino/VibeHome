@@ -3,6 +3,7 @@
 @using VibeHome.Domain.Entities.Recipes
 @page "/Recipes/add"
 @page "/Recipes/edit/{Id:int}"
+@attribute [Authorize(Roles = "recipes")]
 @inject IRecipeService RecipeService
 @inject IIngredientService IngredientService
 @inject IUnitTypeService UnitTypeService

@@ -3,6 +3,7 @@
 @using VibeHome.Domain.Entities.Recipes
 @using VibeHome.UI.Shared
 @page "/Recipes/unit-types"
+@attribute [Authorize(Roles = "recipes")]
 @inject IUnitTypeService UnitTypeService
 
 <h3>Unit Types</h3>

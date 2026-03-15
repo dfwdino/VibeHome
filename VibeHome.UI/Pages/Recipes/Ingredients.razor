@@ -2,6 +2,7 @@
 @using VibeHome.Domain.Entities
 @using VibeHome.UI.Shared
 @page "/Recipes/ingredients"
+@attribute [Authorize(Roles = "recipes")]
 @inject IIngredientService IngredientService
 
 <h3>Ingredients Library</h3>
