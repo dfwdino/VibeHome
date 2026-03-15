@@ -155,48 +155,6 @@
                 </div>
             </div>
 
-            <!-- Nutrition Info -->
-            <div class="card shadow-sm mb-3">
-                <div class="card-header fw-bold bg-light">NUTRITION INFO <small class="text-muted fw-normal">(optional)</small></div>
-                <div class="card-body p-3">
-                    <div class="row g-2">
-                        <div class="col-6 col-md-3">
-                            <label class="form-label small fw-semibold">Calories</label>
-                            <InputNumber class="form-control" @bind-Value="recipeModel.Calories" placeholder="380" />
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <label class="form-label small fw-semibold">Protein (g)</label>
-                            <InputNumber class="form-control" @bind-Value="recipeModel.Protein" placeholder="32" />
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <label class="form-label small fw-semibold">Fat (g)</label>
-                            <InputNumber class="form-control" @bind-Value="recipeModel.Fat" placeholder="24" />
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <label class="form-label small fw-semibold">Carbs (g)</label>
-                            <InputNumber class="form-control" @bind-Value="recipeModel.TotalCarbs" placeholder="10" />
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <label class="form-label small fw-semibold">Fiber (g)</label>
-                            <InputNumber class="form-control" @bind-Value="recipeModel.Fiber" placeholder="4" />
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <label class="form-label small fw-semibold">Sugar (g)</label>
-                            <InputNumber class="form-control" @bind-Value="recipeModel.Sugar" placeholder="3" />
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <label class="form-label small fw-semibold">Sodium (mg)</label>
-                            <InputNumber class="form-control" @bind-Value="recipeModel.Sodium" placeholder="350" />
-                        </div>
-                    </div>
-                    <div class="mt-2">
-                        <label class="form-label small fw-semibold">Additional Details</label>
-                        <InputText class="form-control" @bind-Value="recipeModel.AdditionalNutritionDetails"
-                                   placeholder="e.g. Saturated Fat: 4g, Cholesterol: 85mg" />
-                    </div>
-                </div>
-            </div>
-
             <!-- Instructions -->
             <div class="card shadow-sm mb-3">
                 <div class="card-header fw-bold bg-light">INSTRUCTIONS</div>
@@ -241,6 +199,49 @@
                 </div>
             </div>
 
+            <!-- Nutrition Info -->
+            <div class="card shadow-sm mb-3" >
+                <div class="card-header fw-bold bg-light" @onclick="HideShowNutrition">NUTRITION INFO <small class="text-muted fw-normal">(optional) - @DisplayNutritionText</small></div>
+                <div class="card-body p-3" style="display:@HideNutrition">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Calories</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Calories" placeholder="380" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Protein (g)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Protein" placeholder="32" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Fat (g)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Fat" placeholder="24" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Carbs (g)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.TotalCarbs" placeholder="10" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Fiber (g)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Fiber" placeholder="4" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Sugar (g)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Sugar" placeholder="3" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small fw-semibold">Sodium (mg)</label>
+                            <InputNumber class="form-control" @bind-Value="recipeModel.Sodium" placeholder="350" />
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <label class="form-label small fw-semibold">Additional Details</label>
+                        <InputText class="form-control" @bind-Value="recipeModel.AdditionalNutritionDetails"
+                                   placeholder="e.g. Saturated Fat: 4g, Cholesterol: 85mg" />
+                    </div>
+                </div>
+            </div>
+
+
             <!-- Action Buttons -->
             <div class="d-flex gap-2 mt-3">
                 <button type="submit" class="btn btn-success flex-fill btn-lg" disabled="@isSubmitting">
@@ -265,10 +266,27 @@
     private List<InstructionRow> instructionRows = new();
     private List<Ingredient> allIngredients = new();
     private List<UnitType> allUnitTypes = new();
+    private string HideNutrition = "none";
+    private string DisplayNutritionText = "Show Nutrition";
 
     private bool isEdit => Id.HasValue && Id.Value > 0;
     private bool isLoading = true;
     private bool isSubmitting = false;
+
+
+    private void HideShowNutrition()
+    {
+        if (HideNutrition.Equals("none"))
+        {
+            HideNutrition = "Display";
+            DisplayNutritionText = "Hide Nutrition";
+        }
+        else
+        {
+            HideNutrition = "none";
+            DisplayNutritionText = "Show Nutrition";
+        }
+    }
 
     private static readonly List<(string Code, string Name)> CookingIcons = new()
     {
