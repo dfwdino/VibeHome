@@ -102,8 +102,6 @@
     <Build Include="Kids\Tables\Locations.sql" />
     <Build Include="Kids\Tables\Kids.sql" />
     <Build Include="Kids\Tables\Users.sql" />
-    <Build Include="HomeAppSettings\Tables\UsersPermissions.sql" />
-    <Build Include="HomeAppSettings\Tables\PermissionLevels.sql" />
     <Build Include="HomeAppSettings\Tables\Users.sql" />
     <Build Include="Auto\Tables\MileageEntries.sql" />
     <Build Include="Auto\Tables\GasTypes.sql" />
@@ -130,5 +128,8 @@
     <Build Include="Recipe\Tables\RecipeFavorites.sql" />
     <Build Include="dbo\Tables\Log.sql" />
     <None Include="Database Data\BasicData.sql" />
+    <Build Include="HomeAppSettings\Tables\UsersRole.sql" />
+    <Build Include="HomeAppSettings\Tables\RoleType.sql" />
+    <Build Include="HomeAppSettings\Tables\Roles.sql" />
   </ItemGroup>
 </Project>
