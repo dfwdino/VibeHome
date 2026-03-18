@@ -323,7 +323,7 @@
                     IngredientName = ri.IngredientName,
                     Quantity = ri.Quantity ?? "",
                     UnitTypeId = ri.UnitTypeId,
-                    ExistingRecipeIngredientId = ri.RecipeIngredientId
+                    ExistingRecipeIngredientId = ri.RecipeIngredientId,
                 }).ToList();
 
                 var existingInstructions = (await RecipeInstructionService.GetByRecipeIdAsync(Id.Value)).ToList();
@@ -395,7 +395,9 @@
                         // Add new ingredient to the library
                         var newIng = await IngredientService.AddAndGetAsync(new Ingredient
                         {
-                            IngredientName = row.IngredientName.Trim()
+                            IngredientName = row.IngredientName.Trim().ToTitleCase(),
+                            CreatedAt = DateTime.Now.ToLocalTime(),
+                            ModifiedAt = DateTime.Now.ToLocalTime()
                         });
                         ingredientId = newIng.IngredientId;
                         refreshedIngredients.Add(newIng);
@@ -409,6 +411,8 @@
                     IngredientName = row.IngredientName.Trim().ToTitleCase(),
                     Quantity = string.IsNullOrWhiteSpace(row.Quantity) ? null : row.Quantity.Trim(),
                     UnitTypeId = row.UnitTypeId == 0 ? null : row.UnitTypeId,
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
                     SortOrder = i
                 });
             }

@@ -45,7 +45,13 @@ namespace VibeHome.Infrastructure.HttpServices.Recipes
         public async Task UpdateAsync(Recipe recipe)
         {
             recipe.ModifiedAt = DateTime.Now;
-            recipe.CreatedAt = DateTime.Now;
+            recipe.CreatedAt = DateTime.SpecifyKind(recipe.CreatedAt, DateTimeKind.Local);
+
+            // Clear nav props — managed separately, not via this endpoint
+            recipe.RecipeIngredients = new List<RecipeIngredient>();
+            recipe.RecipeInstructions = new List<RecipeInstruction>();
+            recipe.RecipeFavorites = new List<RecipeFavorite>();
+
             var response = await _httpClient.PutAsJsonAsync($"{_endpoint}({recipe.RecipeId})", recipe);
             response.EnsureSuccessStatusCode();
         }

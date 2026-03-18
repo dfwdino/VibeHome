@@ -82,7 +82,7 @@ else
         {
             <div class="card mb-2 shadow-sm">
                 <div class="card-body p-3">
-                    <div class="fw-semibold fs-6">@item.IngredientName</div>
+                    <div class="fw-semibold fs-6">@item.IngredientName.ToTitleCase()</div>
                     <div class="mt-2 d-flex gap-2">
                         <button class="btn btn-info flex-fill btn-sm" @onclick="@(() => EditIngredient(item))" disabled="@isSubmitting">Edit</button>
                         <button class="btn btn-danger flex-fill btn-sm" @onclick="@(async () => await DeleteIngredient(item.IngredientId))" disabled="@isSubmitting">Delete</button>
@@ -126,6 +126,7 @@ else
         isSubmitting = true;
         try
         {
+            ingredientModel.IngredientName = ingredientModel.IngredientName.ToTitleCase();
             if (ingredientModel.IngredientId == 0)
             {
                 ingredientModel.IngredientName = ingredientModel.IngredientName.ToTitleCase();
@@ -142,6 +143,7 @@ else
     private void EditIngredient(Ingredient item)
     {
         ingredientModel = new Ingredient { IngredientId = item.IngredientId, IngredientName = item.IngredientName };
+        ingredientModel.IngredientName = ingredientModel.IngredientName.ToTitleCase();
         showForm = true;
     }
 
