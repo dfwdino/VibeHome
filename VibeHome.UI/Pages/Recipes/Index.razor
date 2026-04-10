@@ -7,9 +7,12 @@
 @inject IRecipeFavoriteService FavoriteService
 @inject NavigationManager NavigationManager
 
+
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">🍽️ Recipes</h3>
-    <a href="Recipes/add" class="btn btn-success">+ Add Recipe</a>
+    @if (AuthState.CurrentUser is not null) {
+        <a href="Recipes/add" class="btn btn-success">+ Add Recipe</a>}
 </div>
 
 <!-- Search & Filter Bar -->
@@ -68,7 +71,10 @@ else
 @*                     <th class="custom-table-header text-center">Servings</th> *@
                     <th class="custom-table-header text-center">Difficulty</th>
                     <th class="custom-table-header text-center">❤️</th>
-                    <th class="custom-table-header text-center">Actions</th>
+                    @if (AuthState.CurrentUser is not null)
+                    {
+                        <th class="custom-table-header text-center">Actions</th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -97,10 +103,13 @@ else
                                 @(IsFavorite(recipe.RecipeId) ? "❤️" : "🤍")
                             </button>
                         </td>
-                        <td class="text-center" @onclick:stopPropagation="true">
-                            <a href="Recipes/edit/@recipe.RecipeId" class="btn btn-sm btn-info me-1">Edit</a>
-                            <button class="btn btn-sm btn-danger" @onclick="@(async () => await DeleteRecipe(recipe.RecipeId))" disabled="@isSubmitting">Delete</button>
-                        </td>
+                        @if (AuthState.CurrentUser is not null)
+                        {
+                            <td class="text-center" @onclick:stopPropagation="true">
+                                <a href="Recipes/edit/@recipe.RecipeId" class="btn btn-sm btn-info me-1">Edit</a>
+                                <button class="btn btn-sm btn-danger" @onclick="@(async () => await DeleteRecipe(recipe.RecipeId))" disabled="@isSubmitting">Delete</button>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
@@ -144,8 +153,11 @@ else
                 </div>
                 <div class="card-footer p-2 d-flex gap-2" @onclick:stopPropagation="true">
                     <a href="Recipes/@recipe.RecipeId" class="btn btn-sm btn-outline-primary flex-fill">View</a>
+                    @if (AuthState.CurrentUser is not null)
+                    {
                     <a href="Recipes/edit/@recipe.RecipeId" class="btn btn-sm btn-info flex-fill">Edit</a>
                     <button class="btn btn-sm btn-danger flex-fill" @onclick="@(async () => await DeleteRecipe(recipe.RecipeId))" disabled="@isSubmitting">Delete</button>
+                    }
                 </div>
             </div>
         }
