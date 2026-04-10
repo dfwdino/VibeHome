@@ -37,18 +37,20 @@
             </NavLink>
         </div>
 
-            <AuthorizeView Context="parentContext" Roles="recipes">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Recipes">
+                <span class="oi oi-list" aria-hidden="true"></span> Browse Recipes
+            </NavLink>
+        </div>
+
+    <AuthorizeView Context="parentContext" Roles="recipes">
         <!-- Recipes Section — public, no auth required -->
         <!-- TODO: Wrap in AuthorizeView when auth is enabled -->
         <div class="nav-item px-3 mb-1 mt-2">
             <h6 class="text-muted">Recipes</h6>
         </div>
     
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Recipes">
-                <span class="oi oi-list" aria-hidden="true"></span> Browse Recipes
-            </NavLink>
-        </div>
+       
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="Recipes/add">
                 <span class="oi oi-plus" aria-hidden="true"></span> Add Recipe
