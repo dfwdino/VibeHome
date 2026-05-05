@@ -256,7 +256,7 @@
             {
                 ChoreCompletion loopitem = new()
                 {
-                    CompletionDateTime = DateTime.Now,
+                    CompletionDateTime =  UpdateModel.CompletionDateTime, // DateTime.Now,
                     KidId = UpdateModel.KidId,
                     LocationId = UpdateModel.LocationId,
                     ChoreItemId = choreId,

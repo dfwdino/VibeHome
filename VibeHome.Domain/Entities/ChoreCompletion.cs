@@ -22,8 +22,16 @@ namespace VibeHome.Domain.Entities
         public string? Notes { get; set; }
         public bool IsDeleted { get; set; }
     
-        public DateTime CreatedAt { get; set; }
-        public DateTime ModifiedAt { get; set; }
+        public DateTime CreatedAt
+        {
+            get => field;
+            set => field = DateTime.SpecifyKind(value, DateTimeKind.Local);
+        }
+        public DateTime ModifiedAt
+        {
+            get => field;
+            set => field = DateTime.SpecifyKind(value, DateTimeKind.Local);
+        }
         public decimal Price { get; set; }
 
         public Kid? Kid { get; set; }

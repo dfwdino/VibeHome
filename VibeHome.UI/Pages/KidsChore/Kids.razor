@@ -97,10 +97,19 @@
         try
         {
             if (kidModel.KidId == 0)
+            {
+                kidModel.CreatedAt = DateTime.SpecifyKind(kidModel.CreatedAt, DateTimeKind.Local);
+
                 await KidService.AddAsync(kidModel);
+            }
             else
+            {
+                kidModel.ModifiedAt = DateTime.UtcNow;
+                kidModel.CreatedAt = DateTime.SpecifyKind(kidModel.CreatedAt, DateTimeKind.Local);
+
                 await KidService.UpdateAsync(kidModel);
-            await LoadKids();
+                await LoadKids();
+            }
             ClearForm();
         }
         finally
