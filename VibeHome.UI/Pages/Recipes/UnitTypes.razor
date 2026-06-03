@@ -122,6 +122,7 @@ else
         {
             if (unitTypeModel.UnitTypeId == 0){
                 unitTypeModel.UnitName = unitTypeModel.UnitName.ToTitleCase();
+                unitTypeModel.Abbreviation = unitTypeModel.Abbreviation.ToTitleCase();
           
                 await UnitTypeService.AddAsync(unitTypeModel);
             }
