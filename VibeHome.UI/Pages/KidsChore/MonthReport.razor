@@ -19,7 +19,7 @@ else if (reports.Count == 0)
 }
 else
 {
-    foreach (var monthGroup in reports.OrderByDescending(r => r.Year).ThenByDescending(r => r.Month).GroupBy(r => new { r.Year, r.Month }))
+    foreach (var monthGroup in reports.GroupBy(r => new { r.Year, r.Month }).OrderByDescending(g => g.Key.Year).ThenByDescending(g => g.Key.Month))
     {
         var month = monthGroup.Key.Month;
         var year = monthGroup.Key.Year;

@@ -79,7 +79,7 @@ else if (ShowForm)
                     <InputNumber id="pounds" class="form-control" @bind-Value="CurrentEntry.Pounds" @onclick="@(() => ClearValue(() => CurrentEntry.Pounds = 0, CurrentEntry.Pounds))" step="0.01" />
                 </div>
                 <div class="mb-3">
-                    <label for="waist" class="form-label">Waist Size (inches)</label>
+                    <label for="waist" class="form-label">Waist Size (cm)</label>
                     <InputNumber id="waist" class="form-control" @bind-Value="CurrentEntry.WaistSize" step="0.01" />
                 </div>
                 <div class="mb-3">
