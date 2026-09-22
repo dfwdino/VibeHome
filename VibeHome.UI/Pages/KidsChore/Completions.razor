@@ -97,9 +97,18 @@
         <br />
         @if (showDetails)
         {
-            <div class="mb-3" style="margin-bottom: 0.75rem;">
-                <label class="form-label">Price</label>
-                <InputNumber class="form-control" @bind-Value="UpdateModel.Price" />
+            <div class="row" style="margin-bottom: 0.75rem;">
+                <div class="col">
+                    <label class="form-label">Price</label>
+                    <InputNumber class="form-control" @bind-Value="UpdateModel.Price" />
+                </div>
+                @if (!kidModelIsEdit)
+                {
+                    <div class="col">
+                        <label class="form-label">Amount of Times</label>
+                        <InputNumber class="form-control" @bind-Value="TimesCompleted" min="1" />
+                    </div>
+                }
             </div>
             <div class="mb-3" style="margin-bottom: 0.75rem;">
                 <label class="form-label">Completion Date/Time</label>
@@ -194,6 +203,7 @@
     private bool kidModelIsEdit => UpdateModel.ChoreCompletionId != 0;
     private bool showDetails = false;
     private bool showSearch = false;
+    private int TimesCompleted { get; set; } = 1;
 
     private SearchFilterComponent.SearchFilterCriteria currentFilters = new();
 
@@ -251,21 +261,25 @@
                 return;
             }
 
-            // Add mode: create one completion per selected chore
+            // Add mode: create one completion per selected chore, repeated for the amount of times specified
+            int timesToAdd = TimesCompleted < 1 ? 1 : TimesCompleted;
             foreach (var choreId in ChoreItemIds)
             {
-                ChoreCompletion loopitem = new()
+                for (int i = 0; i < timesToAdd; i++)
                 {
-                    CompletionDateTime =  UpdateModel.CompletionDateTime, // DateTime.Now,
-                    KidId = UpdateModel.KidId,
-                    LocationId = UpdateModel.LocationId,
-                    ChoreItemId = choreId,
-                    Notes = UpdateModel.Notes,
-                    CreatedAt = DateTime.Now.ToLocalTime(),
-                    ModifiedAt = DateTime.Now.ToLocalTime()
-                };
-                loopitem.Price = UpdateModel.Price == 0 ? 0 : UpdateModel.Price;
-                await ChoreCompletionService.AddAsync(loopitem);
+                    ChoreCompletion loopitem = new()
+                    {
+                        CompletionDateTime =  UpdateModel.CompletionDateTime, // DateTime.Now,
+                        KidId = UpdateModel.KidId,
+                        LocationId = UpdateModel.LocationId,
+                        ChoreItemId = choreId,
+                        Notes = UpdateModel.Notes,
+                        CreatedAt = DateTime.Now.ToLocalTime(),
+                        ModifiedAt = DateTime.Now.ToLocalTime()
+                    };
+                    loopitem.Price = UpdateModel.Price == 0 ? 0 : UpdateModel.Price;
+                    await ChoreCompletionService.AddAsync(loopitem);
+                }
             }
             if (ChoreItemIds.Count > 0)
                 NotificationService.ShowSuccess("Chore completion added successfully!");
@@ -320,6 +334,7 @@
             UpdateModel.LocationId = defaultLoc.LocationId;
         showForm = false;
         ChoreItemIds.Clear();
+        TimesCompleted = 1;
     }
 
     private void ToggleForm()

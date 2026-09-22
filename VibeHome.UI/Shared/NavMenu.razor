@@ -40,20 +40,13 @@
 
     
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Workout/journal">
-                <span class="oi oi-notebook" aria-hidden="true"></span> Weight Journal
-            </NavLink>
-        </div>
-
     <AuthorizeView Context="parentContext" Roles="recipes">
-        <!-- Recipes Section — public, no auth required -->
-        <!-- TODO: Wrap in AuthorizeView when auth is enabled -->
+        <!-- Recipes management — requires the "recipes" role -->
         <div class="nav-item px-3 mb-1 mt-2">
             <h6 class="text-muted">Recipes</h6>
         </div>
-    
-       
+
+
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="Recipes/add">
                 <span class="oi oi-plus" aria-hidden="true"></span> Add Recipe
@@ -93,6 +86,12 @@
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="KidsChore/Kids">
                         <span class="oi oi-people" aria-hidden="true"></span> Kids
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Workout/journal">
+                        <span class="oi oi-notebook" aria-hidden="true"></span> Weight Journal
                     </NavLink>
                 </div>
 
