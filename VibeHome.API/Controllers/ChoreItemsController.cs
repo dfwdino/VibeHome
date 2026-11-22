@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using VibeHome.Application.Interfaces;
 using VibeHome.Domain.Entities;
+using VibeHome.Infrastructure.Services;
 
 namespace VibeHome.API.Controllers
 {
@@ -57,10 +58,21 @@ namespace VibeHome.API.Controllers
             }
 
             var existing = await _choreItemService.GetByIdAsync(key);
+
             if (existing == null)
             {
                 return NotFound();
             }
+
+            if(existing.Price != choreItem.Price)
+            {
+                await Delete(choreItem.ChoreItemId);
+                choreItem.ChoreItemId = 0; // Reset ID for new entry
+                await _choreItemService.AddAsync(choreItem);
+                return Created(choreItem);
+
+            }
+            
 
             await _choreItemService.UpdateAsync(choreItem);
             return Updated(choreItem);
@@ -74,7 +86,8 @@ namespace VibeHome.API.Controllers
                 return NotFound();
             }
 
-            await _choreItemService.DeleteAsync(key);
+            choreItem.IsDeleted = true;
+            await _choreItemService.UpdateAsync(choreItem);
             return NoContent();
         }
     }

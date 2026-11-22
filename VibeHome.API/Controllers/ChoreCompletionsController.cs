@@ -91,7 +91,9 @@ namespace VibeHome.API.Controllers
                 return NotFound();
             }
 
-            await _choreCompletionService.DeleteAsync(key);
+            choreCompletion.IsDeleted = true;
+
+            await _choreCompletionService.UpdateAsync(choreCompletion);
             return NoContent();
         }
     }
